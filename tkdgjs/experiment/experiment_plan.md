@@ -177,45 +177,40 @@ Start         Request              End             End
 
 ---
 
-## 5.3 완전한 측정 (Full VRAM Monitor) - 연구 목적
+## 5.3 Complete Measurement (Full VRAM Monitor) - Research Purpose
 
-### 5.3.1 vLLM VRAM 레이아웃 구성요소
+### 5.3.1 vLLM VRAM Layout Components (5 Regions)
 
-vLLM이 사용하는 VRAM은 **4개 영역**으로 구성됨:
+vLLM VRAM consists of **5 regions** (sum = nvidia-smi used):
 
 ```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                           GPU VRAM (예: 16GB)                          │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                         │
-│  [영역 1] Model Weights                                                │
-│    - 모델 파라미터 (FP16: ~3GB for 1B model)                           │
-│    - Static, inference 중 변경 없음                                     │
-│                                                                         │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                         │
-│  [영역 2] KV Cache Blocks (vLLM Block Manager)                         │
-│    - vLLM이 관리하는 KV 캐시                                           │
-│    - 요청 처리 중 동적으로 할당/해제                                    │
-│    - gpu_memory_utilization로 제어                                     │
-│                                                                         │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                         │
-│  [영역 3] Activation Tensors & 중간 연산 버퍼                           │
-│    - Prefill/Decode 중 생성되는 임시 텐서                               │
-│    - attention scores, MLP 중간 activations 등                          │
-│    - 요청 종료 후 GC로 해제                                            │
-│                                                                         │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                         │
-│  [영역 4] CUDA Runtime & PyTorch Allocator                             │
-│    - torch.cuda.memory_allocated()                                     │
-│    - CUDA 커널 내부 버퍼                                               │
-│    - cuBLAS, cuDNN 등 백엔드 버퍼                                     │
-│    - **CacheGen 압축 버퍼가 여기에 할당됨!**                          │
-│                                                                         │
-└─────────────────────────────────────────────────────────────────────────┘
++-------------------------------------------------------------------------+
+|                           GPU VRAM (e.g., 16GB)                        |
++-------------------------------------------------------------------------+
+|  [Region 1] Model Weights                                              |
+|    - Model parameters (FP16: ~3GB for 1B model)                        |
++-------------------------------------------------------------------------+
+|  [Region 2a] KV Cache Allocated (Pre-allocated Token Budget)           |
+|    - vLLM pre-allocates KV blocks as "token budget"                   |
+|    - May NOT be fully filled (some blocks are empty/waiting)           |
++-------------------------------------------------------------------------+
+|  [Region 2b] KV Cache Used (Actually Filled)                          |
+|    - Actual KV data stored in VRAM                                     |
+|    - Subset of Region 2a                                               |
++-------------------------------------------------------------------------+
+|  [Region 3] Activation Tensors                                         |
+|    - Temporary tensors during Prefill/Decode                           |
++-------------------------------------------------------------------------+
+|  [Region 4] CUDA Runtime & PyTorch Allocator                           |
+|    - **CacheGen compression buffers allocated here!**                   |
++-------------------------------------------------------------------------+
 ```
+
+### Key Insight: Pre-allocated vs Used
+
+- `vllm_kv_cache_allocated_gb`: Total reserved (token budget)
+- `vllm_kv_cache_used_gb`: Actually filled in VRAM
+- Gap = reserved but not allocated (can be large!)
 
 ### 5.3.2 CacheGen VRAM 추가 할당 영역
 
@@ -249,33 +244,46 @@ from dataclasses import dataclass, asdict
 
 @dataclass
 class VRAMSnapshot:
-    """VRAM 상태 스냅샷"""
-    # 전체 VRAM
+    """VRAM State Snapshot - 5 Regions (sum = nvidia-smi used)"""
+    # Total VRAM (nvidia-smi)
     total_vram_gb: float = 0.0
-    used_vram_gb: float = 0.0
+    used_vram_gb: float = 0.0  # <- This is the reference!
     free_vram_gb: float = 0.0
     
-    # PyTorch allocator (영역 3, 4)
+    # Region 1: Model Weights (static)
+    model_weights_gb: float = 0.0
+    
+    # Region 2a: vLLM KV Cache Allocated (Pre-allocated Token Budget)
+    vllm_kv_cache_allocated_gb: float = 0.0  # Total reserved KV memory
+    vllm_kv_blocks_total: int = 0  # Total blocks reserved
+    vllm_kv_blocks_free: int = 0  # Free blocks (reserved but not filled)
+    
+    # Region 2b: vLLM KV Cache Used (Actively Filled)
+    vllm_kv_cache_used_gb: float = 0.0  # Actually used KV memory
+    vllm_kv_blocks_used: int = 0  # Used blocks count
+    vllm_kv_usage_ratio: float = 0.0  # Usage ratio
+    
+    # Region 3: Activation Tensors
+    activation_tensors_gb: float = 0.0
+    
+    # Region 4: CUDA Runtime / Misc
+    cuda_runtime_gb: float = 0.0
+    
+    # PyTorch memory stats (for reference)
     torch_allocated_gb: float = 0.0
     torch_reserved_gb: float = 0.0
     torch_peak_gb: float = 0.0
     
-    # PyTorch detailed stats
-    active_bytes_gb: float = 0.0
-    inactive_split_bytes_gb: float = 0.0
-    num_alloc_retries: int = 0
-    num_ooms: int = 0
-    
-    # vLLM KV Blocks (영역 2)
-    vllm_kv_blocks: int = 0
-    vllm_kv_usage_ratio: float = 0.0
-    
-    # CacheGen 버퍼 추정 (계산값)
+    # CacheGen buffer estimate
     estimated_cachegen_buffer_gb: float = 0.0
+    
+    # Sum validation
+    sum_validated_gb: float = 0.0  # Sum of all regions
+    sum_diff_gb: float = 0.0  # Difference from nvidia-smi
 
 
 class FullVRAMMonitor:
-    """4개 VRAM 영역을 모두 추적하는 모니터"""
+    """Monitor 5 VRAM regions (sum = nvidia-smi used)"""
     
     def __init__(self, vllm_port: int = 8000):
         self.vllm_port = vllm_port
