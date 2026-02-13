@@ -1047,6 +1047,140 @@ grep -iE "error|failed|exception" vllm_native.log | tail -20
 
 ---
 
-*문서 버전: 1.2 (환경 세팅 및 실험 방법 추가)*
+# 부록 E: Git 관리 가이드
+
+## E.1 GitHub 레포지토리
+
+- **URL**: https://github.com/tkdGJS/cachegen_plus
+- **브랜치**: master (기본)
+
+## E.2 주요 Git 명령어
+
+### 변경 사항 확인
+```bash
+# 현재 상태 확인
+git status
+
+# 변경된 파일 확인
+git diff
+
+# 스테이지된 파일 확인
+git diff --staged
+```
+
+### 변경 사항 커밋
+```bash
+# 특정 파일만 스테이징
+git add <파일경로>
+
+# 모든 변경 사항 스테이징
+git add .
+
+# 커밋 (변경 사항 설명 포함)
+git commit -m "설명 메시지"
+
+# 직전 커밋 메시지 수정
+git commit --amend
+```
+
+### 히스토리 확인
+```bash
+# 커밋 히스토리 (한 줄 보기)
+git log --oneline
+
+# 특정 파일의 히스토리
+git log --follow <파일경로>
+
+# 커밋 상세 확인
+git show <커밋해시>
+```
+
+### 원격 저장소
+```bash
+# GitHub에 푸시
+git push origin master
+
+# 푸시 후 Credential 저장 (다음부터는 비밀번호 불필요)
+git config --global credential.helper store
+```
+
+### 브랜치 관리
+```bash
+# 새 브랜치 생성
+git checkout -b <브랜치이름>
+
+# 브랜치 전환
+git checkout <브랜치이름>
+
+# 브랜치 병합
+git merge <브랜치이름>
+```
+
+## E.3 커밋 메시지 규칙
+
+### 기본 구조
+```
+<타입>: <설명>
+
+<상세 설명 (선택)>
+
+Ultraworked with [Sisyphus](https://github.com/code-yeongyu/oh-my-opencode)
+```
+
+### 타입 Prefix
+| 타입 | 설명 | 예시 |
+|------|------|------|
+| `feat` | 새로운 기능 | `feat: VRAM 모니터링 스크립트 추가` |
+| `fix` | 버그 수정 | `fix: vLLM 시작 명령어 오류 수정` |
+| `docs` | 문서 수정 | `docs: 실험 프로토콜 업데이트` |
+| `refactor` | 코드 리팩토링 | `refactor: 스크립트 구조 정리` |
+| `chore` | 기타 작업 | `chore: .gitignore 추가` |
+
+### 예시
+```bash
+# 실험 스크립트 수정
+git add tkdgjs/experiment/cachegen_vram_experiment/scripts/run_experiment.sh
+git commit -m "fix: 실험 스크립트 경로 수정
+
+- tkdjs 경로 상위로 이동에 따른 경로 수정
+- 로그 디렉토리 자동 생성 추가"
+
+# 결과 파일 추가
+git add tkdgjs/experiment/results_*.json
+git commit -m "docs: 실험 결과 데이터 추가
+
+- native 모드 4개 prefill 결과
+- cachegen 모드 4개 prefill 결과"
+```
+
+## E.4 프로젝트 파일 구조 (Git 관리 대상)
+
+```
+cachegen_plus/
+├── .gitignore                    # Git 무시 파일
+├── cachegen_vram_analysis.md     # 연구 분석 문서
+├── tkdgjs/experiment/
+│   ├── experiment_plan.md        # 전체 실험 프로토콜
+│   ├── lmcache_native.yaml       # Native 설정
+│   ├── lmcache_cachegen.yaml     # CacheGen 설정
+│   ├── run_vram_experiment.py    # 실험 실행 스크립트
+│   ├── send_request.py           # 요청 전송 스크립트
+│   ├── vram_monitor.py           # VRAM 모니터
+│   └── cachegen_vram_experiment/
+│       ├── scripts/              # 실행 스크립트
+│       │   ├── setup_environment.sh
+│       │   ├── start_vllm_native.sh
+│       │   ├── start_vllm_cachegen.sh
+│       │   ├── stop_vllm.sh
+│       │   ├── test_vram.sh
+│       │   └── run_experiment.sh
+│       └── configs/
+│           ├── lmcache_native.yaml
+│           └── lmcache_cachegen.yaml
+```
+
+---
+
+*문서 버전: 1.3 (Git 관리 가이드 추가)*
 *생성 일시: 2026-02-13*
 *최종 업데이트: 2026-02-13*
