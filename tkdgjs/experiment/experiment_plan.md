@@ -1054,8 +1054,105 @@ grep -iE "error|failed|exception" vllm_native.log | tail -20
 - **URL**: https://github.com/tkdGJS/cachegen_plus
 - **SSH**: git@github.com:tkdgGJS/cachegen_plus.git
 - **브랜치**: master (기본)
+- **프로젝트 디렉토리**: `/home/noslab-gpu/tkdgjs/experiment/`
 
-## E.2 주요 Git 명령어
+## E.2 SSH 연결 설정 (처음 한 번만)
+
+### SSH 에이전트 시작
+```bash
+# терминал에서 실행
+eval "$(ssh-agent -s)"
+
+# passphrase 입력
+ssh-add ~/.ssh/id_ed25519
+
+# 연결 확인
+ssh -T git@github.com
+# -> "Hi tkdGJS! You've successfully authenticated..."
+```
+
+### passphrase 없는 SSH 키 생성 (권장)
+```bash
+# 새 키 생성 (passphrase 없이)
+ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519_github -N ""
+
+# GitHub에 공개키 추가
+cat ~/.ssh/id_ed25519_github.pub
+# -> https://github.com/settings/keys 에서 SSH Key로 추가
+
+# Git remote를 새 키로 변경
+git remote set-url origin git@github.com:tkdgGJS/cachegen_plus.git
+```
+
+## E.3 코드 수정 시 자동 커밋/푸시 프로세
+
+### 실험 코드 수정 workflow
+```
+1. 코드 수정 (scripts/, configs/, *.py 등)
+   → /home/noslab-gpu/tkdgjs/experiment/ 내의 파일들
+
+2. 변경 사항 확인
+   git status
+
+3. 변경 파일 스테이징
+   git add <수정된파일>
+
+4. 커밋 (자동)
+   git commit -m "설명 메시지"
+
+5. GitHub에 푸시 (자동)
+   git push origin master
+```
+
+### 커밋 메시지 규칙
+
+#### 기본 구조
+```
+<타입>: <설명>
+
+<상세 설명 (선택)>
+
+Ultraworked with [Sisyphus](https://github.com/code-yeongyu/oh-my-opencode)
+```
+
+#### 타입 Prefix
+| 타입 | 설명 | 예시 |
+|------|------|------|
+| `feat` | 새로운 기능 | `feat: VRAM 모니터링 스크립트 추가` |
+| `fix` | 버그 수정 | `fix: vLLM 시작 명령어 오류 수정` |
+| `docs` | 문서 수정 | `docs: 실험 프로토콜 업데이트` |
+| `refactor` | 코드 리팩토링 | `refactor: 스크립트 구조 정리` |
+| `chore` | 기타 작업 | `chore: 설정 파일 추가` |
+
+#### 예시
+```bash
+# 스크립트 수정 시
+git add tkdgjs/experiment/cachegen_vram_experiment/scripts/run_experiment.sh
+git commit -m "fix: 실험 스크립트 경로 수정
+
+- tkdjs 경로 상위로 이동에 따른 경로 수정
+- 로그 디렉토리 자동 생성 추가"
+
+git push origin master
+
+# 설정 파일 수정 시
+git add tkdgjs/experiment/cachegen_vram_experiment/configs/
+git commit -m "chore: LMCache 설정 업데이트
+
+- GPU memory utilization 0.7로 조정
+- attention backend TRITON_ATTN 명시"
+
+git push origin master
+
+# 실험 결과 분석 시
+git add tkdgjs/experiment/experiment_plan.md
+git commit -m "docs: 실험 결과 분석 추가
+
+- VRAM 피크 측정 결과
+- Native vs CacheGen 비교 데이터"
+```
+
+## E.4 Git 명령어 모음
 
 ### 변경 사항 확인
 ```bash
@@ -1067,21 +1164,6 @@ git diff
 
 # 스테이지된 파일 확인
 git diff --staged
-```
-
-### 변경 사항 커밋
-```bash
-# 특정 파일만 스테이징
-git add <파일경로>
-
-# 모든 변경 사항 스테이징
-git add .
-
-# 커밋 (변경 사항 설명 포함)
-git commit -m "설명 메시지"
-
-# 직전 커밋 메시지 수정
-git commit --amend
 ```
 
 ### 히스토리 확인
@@ -1101,87 +1183,45 @@ git show <커밋해시>
 # GitHub에 푸시
 git push origin master
 
-# 푸시 후 Credential 저장 (다음부터는 비밀번호 불필요)
-git config --global credential.helper store
+# 강제 푸시 (주의!)
+git push -f origin master
 ```
 
-### 브랜치 관리
-```bash
-# 새 브랜치 생성
-git checkout -b <브랜치이름>
-
-# 브랜치 전환
-git checkout <브랜치이름>
-
-# 브랜치 병합
-git merge <브랜치이름>
-```
-
-## E.3 커밋 메시지 규칙
-
-### 기본 구조
-```
-<타입>: <설명>
-
-<상세 설명 (선택)>
-
-Ultraworked with [Sisyphus](https://github.com/code-yeongyu/oh-my-opencode)
-```
-
-### 타입 Prefix
-| 타입 | 설명 | 예시 |
-|------|------|------|
-| `feat` | 새로운 기능 | `feat: VRAM 모니터링 스크립트 추가` |
-| `fix` | 버그 수정 | `fix: vLLM 시작 명령어 오류 수정` |
-| `docs` | 문서 수정 | `docs: 실험 프로토콜 업데이트` |
-| `refactor` | 코드 리팩토링 | `refactor: 스크립트 구조 정리` |
-| `chore` | 기타 작업 | `chore: .gitignore 추가` |
-
-### 예시
-```bash
-# 실험 스크립트 수정
-git add tkdgjs/experiment/cachegen_vram_experiment/scripts/run_experiment.sh
-git commit -m "fix: 실험 스크립트 경로 수정
-
-- tkdjs 경로 상위로 이동에 따른 경로 수정
-- 로그 디렉토리 자동 생성 추가"
-
-# 결과 파일 추가
-git add tkdgjs/experiment/results_*.json
-git commit -m "docs: 실험 결과 데이터 추가
-
-- native 모드 4개 prefill 결과
-- cachegen 모드 4개 prefill 결과"
-```
-
-## E.4 프로젝트 파일 구조 (Git 관리 대상)
+## E.5 프로젝트 파일 구조 (Git 관리 대상)
 
 ```
-cachegen_plus/
-├── .gitignore                    # Git 무시 파일
-├── cachegen_vram_analysis.md     # 연구 분석 문서
-├── tkdgjs/experiment/
-│   ├── experiment_plan.md        # 전체 실험 프로토콜
-│   ├── lmcache_native.yaml       # Native 설정
-│   ├── lmcache_cachegen.yaml     # CacheGen 설정
-│   ├── run_vram_experiment.py    # 실험 실행 스크립트
-│   ├── send_request.py           # 요청 전송 스크립트
-│   ├── vram_monitor.py           # VRAM 모니터
-│   └── cachegen_vram_experiment/
-│       ├── scripts/              # 실행 스크립트
-│       │   ├── setup_environment.sh
-│       │   ├── start_vllm_native.sh
-│       │   ├── start_vllm_cachegen.sh
-│       │   ├── stop_vllm.sh
-│       │   ├── test_vram.sh
-│       │   └── run_experiment.sh
-│       └── configs/
-│           ├── lmcache_native.yaml
-│           └── lmcache_cachegen.yaml
+/home/noslab-gpu/tkdgjs/experiment/
+├── .git/                          # Git 저장소 (루트)
+├── .gitignore                     # Git 무시 파일
+├── experiment_plan.md             # 전체 실험 프로토콜 (이 문서)
+├── lmcache_native.yaml           # Native 설정
+├── lmcache_cachegen.yaml         # CacheGen 설정
+├── run_vram_experiment.py        # 실험 실행 스크립트
+├── send_request.py                # 요청 전송 스크립트
+├── vram_monitor.py               # VRAM 모니터
+└── cachegen_vram_experiment/
+    ├── scripts/                   # 실행 스크립트
+    │   ├── setup_environment.sh
+    │   ├── start_vllm_native.sh
+    │   ├── start_vllm_cachegen.sh
+    │   ├── stop_vllm.sh
+    │   ├── test_vram.sh
+    │   └── run_experiment.sh
+    ├── configs/                   # 설정 파일
+    │   ├── lmcache_native.yaml
+    │   └── lmcache_cachegen.yaml
+    └── logs/                      # 로그 (Git 관리 X)
 ```
+
+### Git에 포함되지 않는 파일 (자동 무시)
+- `*_disk/` - 캐시 디렉토리
+- `*_results*` - 결과 파일
+- `*.log` - 로그 파일
+- `__pycache__/` - Python 캐시
+- `final_results.json` - 최종 결과
 
 ---
 
-*문서 버전: 1.3 (Git 관리 가이드 추가)*
+*문서 버전: 1.4 (자동 커밋/푸시 프로세 추가)*
 *생성 일시: 2026-02-13*
 *최종 업데이트: 2026-02-13*
