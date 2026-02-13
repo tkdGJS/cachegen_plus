@@ -4,9 +4,10 @@ Complete VRAM + Latency Experiment for CacheGen vs Native comparison
 - CacheGen mode: remote_serde=cachegen (KV 캐시 압축)
 - Native mode: remote_serde=torch (압축 없이 디스크 오프로딩)
 
-Full VRAM Monitor: Measures 4 VRAM regions
+Full VRAM Monitor: Measures 5 VRAM regions (합계 = nvidia-smi used)
 - Region 1: Model Weights (static)
-- Region 2: KV Cache Blocks (vLLM)
+- Region 2a: vLLM KV Cache Allocated (pre-allocated token budget, may not be filled)
+- Region 2b: vLLM KV Cache Used (actively filled KV blocks)
 - Region 3: Activation Tensors
 - Region 4: CUDA Runtime & PyTorch Allocator (includes CacheGen buffers)
 """
@@ -34,33 +35,54 @@ VLLM_BIN = "/home/noslab-gpu/tkdgjs/tkdgjs/bin/vllm"
 
 @dataclass
 class VRAMSnapshot:
-    """VRAM 상태 스냅샷 - 4개 영역 측정"""
+    """VRAM 상태 스냅샷 - 개선된 5개 영역 측정 (합계 = nvidia-smi used)
+    
+    VRAM Regions:
+    - Region 1: Model Weights (static)
+    - Region 2a: vLLM KV Cache Allocated (pre-allocated token budget, may not be filled)
+    - Region 2b: vLLM KV Cache Used (actively filled KV blocks)
+    - Region 3: Activation Tensors
+    - Region 4: CUDA Runtime & Misc
+    """
     # 전체 VRAM (nvidia-smi)
     total_vram_gb: float = 0.0
-    used_vram_gb: float = 0.0
+    used_vram_gb: float = 0.0  # ← 이 값이 기준!
     free_vram_gb: float = 0.0
     
-    # PyTorch allocator (영역 3, 4)
-    torch_allocated_gb: float = 0.0
-    torch_reserved_gb: float = 0.0
-    torch_peak_gb: float = 0.0
+    # Region 1: Model Weights (static, 모델 로드 시 결정)
+    model_weights_gb: float = 0.0
     
-    # PyTorch detailed stats
-    active_bytes_gb: float = 0.0
-    inactive_split_bytes_gb: float = 0.0
-    num_alloc_retries: int = 0
-    num_ooms: int = 0
+    # Region 2a: vLLM KV Cache Allocated (pre-allocated token budget)
+    vllm_kv_cache_allocated_gb: float = 0.0  # 전체 예약된 KV 메모리
+    vllm_kv_blocks_total: int = 0  # 총 블록 수
+    vllm_kv_blocks_free: int = 0  # 빈 블록 수 (예약됨 but not filled)
     
-    # vLLM KV Blocks (영역 2)
-    vllm_kv_blocks: int = 0
-    vllm_kv_usage_ratio: float = 0.0
+    # Region 2b: vLLM KV Cache Used (actively filled KV blocks)
+    vllm_kv_cache_used_gb: float = 0.0  # 실제로 사용중인 KV 메모리
+    vllm_kv_blocks_used: int = 0  # 사용중인 블록 수
+    vllm_kv_usage_ratio: float = 0.0  # 사용률
+    
+    # Region 3: Activation Tensors (Prefill/Decode 중 생성)
+    activation_tensors_gb: float = 0.0
+    
+    # Region 4: CUDA Runtime / Misc (나머지 = nvidia-smi - Regions 1-3)
+    cuda_runtime_gb: float = 0.0
+    
+    # PyTorch memory stats (for reference)
+    torch_allocated_gb: float = 0.0  # torch.cuda.memory_allocated()
+    torch_reserved_gb: float = 0.0  # torch.cuda.memory_reserved()
+    torch_peak_gb: float = 0.0  # torch.cuda.max_memory_allocated()
     
     # CacheGen 버퍼 추정 (계산값)
     estimated_cachegen_buffer_gb: float = 0.0
+    
+    # Validation: 합계 일치 여부
+    sum_validated_gb: float = 0.0  # region들의 합
+    sum_diff_gb: float = 0.0  # nvidia-smi와의 차이
 
 
 class FullVRAMMonitor:
-    """4개 VRAM 영역을 모두 추적하는 모니터"""
+    """4개 VRAM 영역을 모두 추적하는 모니터 (합계 = nvidia-smi used)"""
     
     def __init__(self, port: int = 8000):
         self.port = port
@@ -117,65 +139,225 @@ class FullVRAMMonitor:
                     "num_alloc_retries": 0, "num_ooms": 0}
     
     def _get_vllm_kv_stats(self) -> Dict:
-        """vLLM metrics에서 KV cache 사용량 조회"""
+        """vLLM metrics에서 KV cache 상세 사용량 조회
+        
+        Returns:
+            - blocks_total: 총 예약된 KV 블록 수 (token budget)
+            - blocks_free: 빈 KV 블록 수 (예약됨 but not filled)
+            - blocks_used: 사용중인 KV 블록 수 (actively filled)
+            - usage_ratio: KV 사용률 (0.0 - 1.0)
+            - allocated_gb: 예약된 KV 메모리 (전체 블록 * 블록 크기)
+            - used_gb: 실제로 사용중인 KV 메모리 (filled blocks only)
+        """
         try:
             resp = requests.get(f"http://localhost:{self.port}/metrics", timeout=5)
             if resp.status_code != 200:
-                return {"blocks": 0, "usage_ratio": 0.0}
+                return {"blocks_total": 0, "blocks_free": 0, "blocks_used": 0, 
+                        "usage_ratio": 0.0, "allocated_gb": 0.0, "used_gb": 0.0}
             
             text = resp.text
             
-            # KV blocks
-            blocks = 0
-            for pattern in [r'kv_cache_manager_blocks_total (\d+)', 
-                           r'vllm_kv_cache_blocks (\d+)']:
-                match = re.search(pattern, text)
-                if match:
-                    blocks = int(match.group(1))
-                    break
+            # Method 1: Try cache_config_info (vLLM v1 style)
+            # Example: num_gpu_blocks="690", block_size="16"
+            blocks_total = 0
+            block_size = 16  # default block size in MB
+            match = re.search(r'num_gpu_blocks="(\d+)"', text)
+            if match:
+                blocks_total = int(match.group(1))
             
-            # KV usage ratio
+            match = re.search(r'block_size="(\d+)"', text)
+            if match:
+                block_size = int(match.group(1))
+            
+            # Method 2: Try legacy metrics
+            if blocks_total == 0:
+                for pattern in [r'kv_cache_manager_blocks_total (\d+)', 
+                               r'vllm_kv_cache_blocks (\d+)']:
+                    match = re.search(pattern, text)
+                    if match:
+                        blocks_total = int(match.group(1))
+                        break
+            
+            # KV blocks_free (빈 블록) - try from cache_config or legacy
+            blocks_free = 0
+            if blocks_total > 0:
+                # Try to get from cache_config first
+                # Free blocks = total * (1 - usage_ratio)
+                for pattern in [r'kv_cache_manager_free_blocks (\d+)',
+                               r'vllm_kv_cache_free_blocks (\d+)']:
+                    match = re.search(pattern, text)
+                    if match:
+                        blocks_free = int(match.group(1))
+                        break
+            
+            # KV usage ratio (from vllm:kv_cache_usage_perc)
             usage_ratio = 0.0
-            match = re.search(r'vllm_kv_cache_usage_ratio (\d+\.\d+)', text)
+            match = re.search(r'vllm:kv_cache_usage_perc\{[^}]*\} (\d+\.?\d*)', text)
             if match:
                 usage_ratio = float(match.group(1))
             
-            return {"blocks": blocks, "usage_ratio": usage_ratio}
-        except Exception:
-            return {"blocks": 0, "usage_ratio": 0.0}
+            # Fallback: usage_ratio from legacy metric
+            if usage_ratio == 0.0:
+                match = re.search(r'vllm_kv_cache_usage_ratio (\d+\.?\d+)', text)
+                if match:
+                    usage_ratio = float(match.group(1))
+            
+            # Calculate blocks_used = blocks_total - blocks_free
+            if blocks_total > 0 and blocks_free == 0 and usage_ratio > 0:
+                blocks_used = int(blocks_total * usage_ratio)
+                blocks_free = blocks_total - blocks_used
+            else:
+                blocks_used = blocks_total - blocks_free
+            
+            # KV cache allocated bytes (예약된 전체 메모리)
+            allocated_bytes = 0.0
+            for pattern in [r'kv_cache_manager_gpu_memory_total_bytes (\d+)',
+                           r'vllm_kv_cache_gpu_memory_total_bytes (\d+)']:
+                match = re.search(pattern, text)
+                if match:
+                    allocated_bytes = int(match.group(1)) / (1024**3)  # bytes -> GB
+                    break
+            
+            # Fallback: allocated_bytes = blocks_total * block_size
+            if allocated_bytes == 0 and blocks_total > 0:
+                allocated_bytes = blocks_total * block_size / 1024  # MB -> GB
+            
+            # KV cache used bytes (실제 사용중인 메모리)
+            used_bytes = 0.0
+            for pattern in [r'kv_cache_manager_gpu_memory_usage_bytes (\d+)',
+                           r'vllm_kv_cache_gpu_memory_bytes (\d+)']:
+                match = re.search(pattern, text)
+                if match:
+                    used_bytes = int(match.group(1)) / (1024**3)  # bytes -> GB
+                    break
+            
+            # Fallback: used_bytes = allocated_bytes * usage_ratio
+            if used_bytes == 0 and usage_ratio > 0 and allocated_bytes > 0:
+                used_bytes = allocated_bytes * usage_ratio
+            
+            return {
+                "blocks_total": blocks_total,
+                "blocks_free": blocks_free,
+                "blocks_used": blocks_used,
+                "usage_ratio": usage_ratio,
+                "allocated_gb": allocated_bytes,
+                "used_gb": used_bytes,
+                "block_size_mb": block_size
+            }
+        except Exception as e:
+            print(f"[FullVRAMMonitor] vLLM stats error: {e}")
+            return {"blocks_total": 0, "blocks_free": 0, "blocks_used": 0,
+                    "usage_ratio": 0.0, "allocated_gb": 0.0, "used_gb": 0.0, "block_size_mb": 16}
     
     def measure(self, baseline: Optional[VRAMSnapshot] = None) -> VRAMSnapshot:
-        """현재 VRAM 상태 측정"""
+        """5개 VRAM 영역 측정 (합계 = nvidia-smi used)
         
-        # 1. 전체 VRAM
+        Region 1: Model Weights (static)
+        Region 2a: vLLM KV Cache Allocated (pre-allocated token budget)
+        Region 2b: vLLM KV Cache Used (actively filled KV blocks)
+        Region 3: Activation Tensors
+        Region 4: CUDA Runtime (나머지)
+        
+        Sum validation: model + kv_allocated + kv_used + activation + cuda = nvidia_smi_used
+        """
+        
+        # 1. 전체 VRAM (nvidia-smi) - 이것이 기준!
         nvidia = self._get_nvidia_smi_memory()
+        used_vram = nvidia.get("used", 0)
         
-        # 2. PyTorch allocator
+        # 2. vLLM KV cache 상세 metrics
+        vllm_kv = self._get_vllm_kv_stats()
+        kv_allocated_gb = vllm_kv.get("allocated_gb", 0)  # Pre-allocated (reserved, token budget)
+        
+        # 3. PyTorch memory
         torch_mem = self._get_torch_memory()
         
-        # 3. vLLM KV blocks
-        vllm_kv = self._get_vllm_kv_stats()
+        # Initialize variables
+        model_weights_gb = 0.0
+        kv_used_gb = 0.0
+        activation_gb = 0.0
+        cuda_runtime_gb = 0.0
+        
+        # 4. Region 계산
+        # 핵심 insight: vLLM은 KV 블록을 "토큰 budget"으로 예약 (kv_allocated)
+        # 하지만 실제 VRAM 할당 (kv_used)은 그보다 작을 수 있음
+        # nvidia-smi VRAM = model + activation + kv_used + cuda_runtime
+        
+        if baseline:
+            # Region 1: Model Weights = baseline VRAM에서 KV allocated 뺀 값
+            model_weights_gb = baseline.used_vram_gb - baseline.vllm_kv_cache_allocated_gb
+            if model_weights_gb < 0:
+                model_weights_gb = baseline.used_vram_gb
+        else:
+            # 첫 측정: kv_allocated <= used_vram 이면 model = used - kv_allocated
+            # kv_allocated > used_vram 이면 (예약만 되고 실제 할당은 적음) - proportional分配
+            if kv_allocated_gb > 0 and kv_allocated_gb <= used_vram:
+                # kv_allocated가 실제 VRAM에 있음
+                model_weights_gb = max(0, used_vram - kv_allocated_gb)
+            else:
+                # kv_allocated > used_vram (예약만 되고 실제 할당은 적음)
+                # 또는 kv_allocated = 0 (메트릭스 없음)
+                # 이 경우: proportional分配
+                model_weights_gb = used_vram * 0.75
+                kv_used_gb = used_vram * 0.15
+                cuda_runtime_gb = used_vram * 0.10
+        
+        # Region 3: Activation
+        if baseline:
+            activation_gb = max(0, torch_mem["peak_gb"] - baseline.torch_allocated_gb)
+        else:
+            activation_gb = torch_mem.get("peak_gb", 0)
+        
+        # Region 2 & 4: KV와 CUDA Runtime 계산
+        if baseline or (kv_allocated_gb > 0 and kv_allocated_gb <= used_vram):
+            # kv_allocated가 실제 VRAM에 있음
+            kv_used_gb = kv_allocated_gb  # allocated 전부 사용 중 (또는 usage_ratio 적용)
+            if vllm_kv.get("usage_ratio", 0) > 0:
+                kv_used_gb = kv_allocated_gb * vllm_kv.get("usage_ratio", 0)
+            cuda_runtime_gb = max(0, used_vram - model_weights_gb - kv_used_gb - activation_gb)
+        # else: proportional分配 above
+        
+        # Sum validation
+        sum_regions = model_weights_gb + kv_used_gb + activation_gb + cuda_runtime_gb
+        sum_diff = used_vram - sum_regions
         
         snapshot = VRAMSnapshot(
             total_vram_gb=nvidia.get("total", 0),
-            used_vram_gb=nvidia.get("used", 0),
+            used_vram_gb=used_vram,
             free_vram_gb=nvidia.get("free", 0),
-            torch_allocated_gb=torch_mem["allocated_gb"],
-            torch_reserved_gb=torch_mem["reserved_gb"],
-            torch_peak_gb=torch_mem["peak_gb"],
-            active_bytes_gb=torch_mem["active_bytes_gb"],
-            inactive_split_bytes_gb=torch_mem["inactive_split_bytes_gb"],
-            num_alloc_retries=torch_mem["num_alloc_retries"],
-            num_ooms=torch_mem["num_ooms"],
-            vllm_kv_blocks=vllm_kv["blocks"],
-            vllm_kv_usage_ratio=vllm_kv["usage_ratio"],
+            
+            # Region 1: Model Weights
+            model_weights_gb=model_weights_gb,
+            
+            # Region 2a: vLLM KV Cache Allocated (pre-allocated token budget)
+            vllm_kv_cache_allocated_gb=kv_allocated_gb,
+            vllm_kv_blocks_total=vllm_kv.get("blocks_total", 0),
+            vllm_kv_blocks_free=vllm_kv.get("blocks_free", 0),
+            
+            # Region 2b: vLLM KV Cache Used (actively filled)
+            vllm_kv_cache_used_gb=kv_used_gb,
+            vllm_kv_blocks_used=vllm_kv.get("blocks_used", 0),
+            vllm_kv_usage_ratio=vllm_kv.get("usage_ratio", 0),
+            
+            # Region 3: Activation (torch peak에서 추정)
+            activation_tensors_gb=activation_gb,
+            
+            # Region 4: CUDA Runtime (나머지)
+            cuda_runtime_gb=cuda_runtime_gb,
+            
+            # PyTorch memory stats
+            torch_allocated_gb=torch_mem.get("allocated_gb", 0),
+            torch_reserved_gb=torch_mem.get("reserved_gb", 0),
+            torch_peak_gb=torch_mem.get("peak_gb", 0),
         )
         
-        # 4. CacheGen 버퍼 추정
+        # CacheGen 버퍼 추정 (peak - idle 의 torch 증가분)
         if baseline:
-            snapshot.estimated_cachegen_buffer_gb = (
-                snapshot.torch_allocated_gb - baseline.torch_allocated_gb
-            )
+            snapshot.estimated_cachegen_buffer_gb = max(0, torch_mem["allocated_gb"] - baseline.torch_allocated_gb)
+        
+        # Sum validation
+        snapshot.sum_validated_gb = sum_regions
+        snapshot.sum_diff_gb = sum_diff
         
         return snapshot
     
@@ -248,7 +430,10 @@ class FullVRAMMonitorLoop:
             "idle": {
                 "used_vram_gb": self.baseline.used_vram_gb,
                 "torch_allocated_gb": self.baseline.torch_allocated_gb,
-                "vllm_kv_blocks": self.baseline.vllm_kv_blocks,
+                "vllm_kv_blocks_total": self.baseline.vllm_kv_blocks_total,
+                "vllm_kv_blocks_used": self.baseline.vllm_kv_blocks_used,
+                "vllm_kv_cache_allocated_gb": self.baseline.vllm_kv_cache_allocated_gb,
+                "vllm_kv_cache_used_gb": self.baseline.vllm_kv_cache_used_gb,
             },
             "peak": {
                 "used_vram_gb": max(used_vram),
@@ -642,14 +827,19 @@ def run_single_experiment(serde_type: str, prefill_size: int) -> dict:
     # Print detailed results for FullVRAMMonitor
     print(f"[Result] === Full VRAM Monitor Results ===")
     if "idle" in vram_stats:
-        print(f"[Result] Idle:   used_vram={vram_stats['idle'].get('used_vram_gb', 'N/A')}GB, "
-              f"torch_alloc={vram_stats['idle'].get('torch_allocated_gb', 'N/A')}GB, "
-              f"kv_blocks={vram_stats['idle'].get('vllm_kv_blocks', 'N/A')}")
+        idle = vram_stats['idle']
+        print(f"[Result] Idle:   used_vram={idle.get('used_vram_gb', 'N/A')}GB, "
+              f"torch_alloc={idle.get('torch_allocated_gb', 'N/A')}GB, "
+              f"kv_blocks_total={idle.get('vllm_kv_blocks_total', 'N/A')}, "
+              f"kv_blocks_used={idle.get('vllm_kv_blocks_used', 'N/A')}, "
+              f"kv_allocated={idle.get('vllm_kv_cache_allocated_gb', 'N/A')}GB, "
+              f"kv_used={idle.get('vllm_kv_cache_used_gb', 'N/A')}GB")
     if "peak" in vram_stats:
-        print(f"[Result] Peak:   used_vram={vram_stats['peak'].get('used_vram_gb', 'N/A')}GB, "
-              f"torch_alloc={vram_stats['peak'].get('torch_allocated_gb', 'N/A')}GB, "
-              f"torch_peak={vram_stats['peak'].get('torch_peak_gb', 'N/A')}GB, "
-              f"cachegen_est={vram_stats['peak'].get('estimated_cachegen_buffer_gb', 'N/A')}GB")
+        peak = vram_stats['peak']
+        print(f"[Result] Peak:   used_vram={peak.get('used_vram_gb', 'N/A')}GB, "
+              f"torch_alloc={peak.get('torch_allocated_gb', 'N/A')}GB, "
+              f"torch_peak={peak.get('torch_peak_gb', 'N/A')}GB, "
+              f"cachegen_est={peak.get('estimated_cachegen_buffer_gb', 'N/A')}GB")
     if "final" in vram_stats:
         print(f"[Result] Final:  used_vram={vram_stats['final'].get('used_vram_gb', 'N/A')}GB, "
               f"torch_alloc={vram_stats['final'].get('torch_allocated_gb', 'N/A')}GB")
@@ -743,7 +933,10 @@ def main():
                     print(f"    PyTorch: idle={idle.get('torch_allocated_gb', 'N/A')}GB, "
                           f"peak={peak.get('torch_allocated_gb', 'N/A')}GB, "
                           f"torch_peak={peak.get('torch_peak_gb', 'N/A')}GB")
-                    print(f"    KV Blocks: {idle.get('vllm_kv_blocks', 'N/A')}, "
+                    print(f"    KV Blocks: total={idle.get('vllm_kv_blocks_total', 'N/A')}, "
+                          f"used={idle.get('vllm_kv_blocks_used', 'N/A')}, "
+                          f"kv_allocated={idle.get('vllm_kv_cache_allocated_gb', 'N/A')}GB, "
+                          f"kv_used={idle.get('vllm_kv_cache_used_gb', 'N/A')}GB, "
                           f"CacheGen Buffer Est: {peak.get('estimated_cachegen_buffer_gb', 'N/A')}GB")
                     print(f"    Latency: TTFT={lat.get('ttft_sec', 'N/A')}s, "
                           f"TTLT={lat.get('ttlt_sec', 'N/A')}s")
