@@ -713,8 +713,25 @@ plt.savefig('vram_profiles.png')
 | `final_results.json` | 전체 실험 결과 요약 |
 | `vllm_native.log` | vLLM Native 모드 로그 |
 | `vllm_cachegen.log` | vLLM CacheGen 모드 로그 |
+| `vram_timeseries_*.jsonl` | VRAM 타임시리즈 로그 (0.1초 간격) |
+| `sweep_results.json` | Sweep 실험 결과 |
 | `vram_profiles.png` | VRAM 타임시리즈 시각화 |
 | `comparison_table.csv` | 결과 비교 테이블 |
+
+### VRAM Timeseries 로그 형식
+
+각 实验마다 생성되는 `vram_timeseries_*.jsonl` 파일:
+
+```json
+{"used_vram_gb": 10.36, "model_weights_gb": 10.36, "vllm_kv_cache_allocated_gb": 231.61, "vllm_kv_cache_used_gb": 0.0, "vllm_kv_blocks_total": 14823, "activation_tensors_gb": 0.0, "cuda_runtime_gb": 0.0, "sum_validated_gb": 10.36, "sum_diff_gb": 0.0, "elapsed_sec": 32.5, "timestamp": 1707830400.5}
+```
+
+필드:
+- `elapsed_sec`: 실험 시작 후 경과 시간
+- `timestamp`: Unix 타임스탬프
+- `used_vram_gb`: nvidia-smi 기준 VRAM 사용량
+- `vllm_kv_cache_allocated_gb`: KV 토큰 예산 (예약만 되고 실제 할당되지 않을 수 있음)
+- `vllm_kv_cache_used_gb`: 실제 VRAM에 있는 KV 메모리
 
 ---
 

@@ -386,15 +386,27 @@ def run_single_experiment(serde_type: str, prefill_size: int, gpu_mem_util: floa
     disk_path = f"{EXPERIMENT_DIR}/lmcache_{serde_type}_disk"
     before_files, before_size = get_disk_usage(disk_path)
     
+    vram_log_file = f"{EXPERIMENT_DIR}/vram_timeseries_{serde_type}_p{prefill_size}_gm{gpu_mem_util}.jsonl"
+    
     monitor.start()
     time.sleep(2)
     
+    request_start_time = time.time()
     success, latency_data = send_request_and_measure(prefill_size)
+    
     time.sleep(10)
     
     monitor.stop()
     snapshot = monitor.get_snapshot()
     after_files, after_size = get_disk_usage(disk_path)
+    
+    samples = monitor.get_samples()
+    
+    with open(vram_log_file, 'w') as f:
+        for sample in samples:
+            f.write(json.dumps(sample) + '\n')
+    
+    print(f"[VRAM Log] Saved {len(samples)} samples to {vram_log_file}")
     
     stop_vllm()
     
@@ -444,9 +456,14 @@ class FullVRAMMonitorLoop:
         while self.running:
             snapshot = self.monitor.measure(self.baseline)
             elapsed = time.time() - self.start_time
+            timestamp = time.time()
+            
+            sample = asdict(snapshot)
+            sample['elapsed_sec'] = elapsed
+            sample['timestamp'] = timestamp
             
             with self._lock:
-                self.samples.append(asdict(snapshot))
+                self.samples.append(sample)
                 self.current_snapshot = snapshot
             
             time.sleep(self.interval)
@@ -468,6 +485,10 @@ class FullVRAMMonitorLoop:
     def get_snapshot(self) -> VRAMSnapshot:
         with self._lock:
             return self.current_snapshot if self.current_snapshot else self.baseline
+    
+    def get_samples(self) -> List[Dict]:
+        with self._lock:
+            return self.samples.copy()
 
 
 def main():
