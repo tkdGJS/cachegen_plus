@@ -1,0 +1,48 @@
+# Git Ignore for CacheGen VRAM Experiment
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Environment files
+.env
+.env.local
+*.pem
+*.key
+
+# Log files
+*.log
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Node modules (if any)
+node_modules/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# IDE
+.vscode/
+.idea/
+*.sublime-*
+
+# Large binary files
+*.bin
+*.dat
+
+# vLLM/LMCache cache (should not be committed)
+/tmp/lmcache/
+*.cache
