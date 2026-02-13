@@ -97,7 +97,7 @@ t7: batched_put() → 디스크 저장 ─────────────�
 | **CacheGen (ATC'24)** | KV cache 압축 기법 제안 | 압축 알고리즘만 다루고, runtime memory management는 연구 안 함 |
 | **PQR (NeurIPS'23)** | Product Quantization for KV cache | 압축률에만 집중, 메모리 할당 문제 무시 |
 | **Safari (OSDI'23)** | KV cache 관리 시스템 | KV storage만 다루고, compression 통합 시 문제 발생 |
-| **LMCache (VLDB'25)** |分布式 KV caching | 압축 기능 추가才发现 문제 |
+| **LMCache (VLDB'25)** | 분산 KV 캐싱 | 압축 기능 추가발 문제 |
 
 ---
 
@@ -109,9 +109,9 @@ t7: batched_put() → 디스크 저장 ─────────────�
 
 ---
 
-## 3. 해결难度 분석
+## 3. 해결 난이도 분석
 
-| 난이因素 | 분석 |
+| 난이도 | 분석 |
 |---------|------|
 | **시스템 복잡도** | vLLM + LMCache 두 시스템 간 coordination 필요 |
 | **성능 vs 안정성** | 압축률/속도와 메모리 안정성 사이 trade-off |
@@ -152,9 +152,9 @@ def serialize_with_early_release(memory_obj):
 
 | 장점 | 단점 |
 |------|------|
-| VRAM 동시 사용 최소화 | CPU-GPU数据传输 overhead |
+| VRAM 동시 사용 최소화 | CPU-GPU 데이터 전송 overhead |
 | 구현 단순 | 압축 실패 시 KV 손실 (recomputation 필요) |
-| OOM 위험大幅 감소 | 초기 메모리 복제 시간 증가 |
+| OOM 위험 크게 감소 | 초기 메모리 복제 시간 증가 |
 
 ---
 
@@ -310,7 +310,7 @@ def compress_with_cpu_buffer(kv_tensor):
 ## Q1: "단순 구현 버그가 아닌가? 왜 이것이 연구인가?"
 
 ** 전략:**
-> "이것은 단순한 구현 버그가 아닙니다. 기존 KV cache storage 시스템에서는 발생하지 않던 새로운 문제입니다. KV cache **compression**이 도입됨으로써涌现된 새로운 메모리 관리 과제입니다. 이는 streaming compression을 사용하는 모든 시스템에서 발생할 수 있는 일반적인 문제로, 시스템 연구의 좋은 기회입니다."
+> "이것은 단순한 구현 버그가 아닙니다. 기존 KV cache storage 시스템에서는 발생하지 않던 새로운 문제입니다. KV cache **compression**이 도입됨으로써 나타난 새로운 메모리 관리 과제입니다. 이는 streaming compression을 사용하는 모든 시스템에서 발생할 수 있는 일반적인 문제로, 시스템 연구의 좋은 기회입니다."
 
 **Evidence:**
 - 기존 LMCache (비압축 버전)에서는 OOM 문제 없음
@@ -319,13 +319,13 @@ def compress_with_cpu_buffer(kv_tensor):
 
 ---
 
-## Q2: "왜 기존論文의 방법을 바로 적용하지 않는가?"
+## Q2: "왜 기존 논문의 방법을 바로 적용하지 않는가?"
 
 ** 전략:**
 > "기존 KV cache compression 연구( CacheGen, PQR, PQFormer 등)는 **compression ratio**와 **품질(재구성 오차)**에 집중했습니다. **Runtime memory management**는 충분히 연구되지 않았습니다. 우리의 연구는 compression의 **시스템 측면**(메모리, 스케줄링)을 처음 다루는 작업입니다."
 
 **Evidence:**
-- 기존 논문:压缩率 10x, 품질 MSE < 0.01 등
+- 기존 논문: 압축률 10x, 품질 MSE < 0.01 등
 - 우리 문제: VRAM peak, OOM 발생률 등
 - Systems 관점의 새로운 기여
 
@@ -346,7 +346,7 @@ def compress_with_cpu_buffer(kv_tensor):
 ## Q4: "해결책이 일반적인가? 특정 시스템에 특화된 것이 아닌가?"
 
 ** 전략:**
-> "우리의 해결책은 **범용 프레임워크**로 설계했습니다. 특정 compression 알고리즘에 의존하지 않고,任何 streaming compression에 적용 가능합니다. 또한 vLLM+LMCache뿐 아니라, KV cache를 사용하는 다른 추론 엔진에도 적용 가능합니다."
+> "우리의 해결책은 **범용 프레임워크**로 설계했습니다. 특정 compression 알고리즘에 의존하지 않고, 모든 streaming compression에 적용 가능합니다. 또한 vLLM+LMCache뿐 아니라, KV cache를 사용하는 다른 추론 엔진에도 적용 가능합니다."
 
 **Evidence:**
 - Streaming Chunked: Any chunk-able compression
@@ -479,9 +479,9 @@ Time    1.0x       1.2x    1.8x       1.1x    1.5x
 # Future Work
 
 1. **다른 Compression 기법 적용**: PQ, VAE-base compression에서도 동일 문제 발생 확인
-2. **분산 환경으로 확장**: Multi-GPU, Multi-Node 환경에서의 메모리协调
+2. **분산 환경으로 확장**: Multi-GPU, Multi-Node 환경에서의 메모리 협업
 3. **자동적 해결책 선택**: Workload 특성 기반 adaptive solution selection
-4. **하드웨어协同**: CPU offloading, RDMA 등과의 통합
+4. **하드웨어 협업**: CPU offloading, RDMA 등과의 통합
 
 ---
 

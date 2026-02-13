@@ -625,7 +625,7 @@ export VLLM_ATTENTION_BACKEND=TRION_ATTN
 
 ---
 
-## 9. 주의사항 및风险管理
+## 9. 주의사항 및 리스크 관리
 
 ### 9.1 OOM 발생 가능성
 
@@ -839,7 +839,7 @@ vllm serve meta-llama/Llama-3.2-1B-Instruct \
 
 ---
 
-# 부록 B: 빠른 시작 가이드 (5분内有効)
+# 부록 B: 빠른 시작 가이드 (5분 이내)
 
 ## B.1 1단계: 환경 확인
 
@@ -1022,14 +1022,14 @@ grep "Stored" vllm_cachegen.log
 
 # 부록 D: 트러블슈팅
 
-## D.1常见 문제
+## D.1 일반 문제
 
 | 문제 | 원인 | 해결책 |
 |------|------|--------|
 | `vllm: not found` | PATH 설정 안됨 | `export PATH=/home/noslab-gpu/tkdgjs/tkdgjs/bin:$PATH` |
 | `TRITON_ATTN` 오류 | Attention backend 잘못됨 | `--attention-config '{"backend": "TRITON_ATTN"}'` 사용 |
 | LMCache 미연결 | kv-offloading-backend 기본값 | `--kv-offloading-backend lmcache` 명시 |
-| VRAM 부족 | GPU Memory太高 | `--gpu-memory-utilization 0.7` 이하로 낮춤 |
+| VRAM 부족 | GPU Memory 너무 높음 | `--gpu-memory-utilization 0.7` 이하로 낮춤 |
 | 포트 충돌 | 기존 프로세스 점유 | `pkill -f vllm` 후 재시작 |
 
 ## D.2 로그 확인
