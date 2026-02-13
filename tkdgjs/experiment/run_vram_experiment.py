@@ -595,7 +595,8 @@ def run_single_experiment(serde_type: str, prefill_size: int) -> dict:
     print(f"[Warmup] Waiting {warmup_sec}s for vLLM to stabilize...")
     time.sleep(warmup_sec)
     
-    monitor = VRAMMonitor(interval=0.1, port=VLLM_PORT)
+    # Use FullVRAMMonitorLoop for 4-region VRAM measurement
+    monitor = FullVRAMMonitorLoop(interval=0.1, port=VLLM_PORT)
     
     disk_path = f"{EXPERIMENT_DIR}/lmcache_{serde_type}_disk"
     before_files, before_size = get_disk_usage(disk_path)
@@ -617,12 +618,14 @@ def run_single_experiment(serde_type: str, prefill_size: int) -> dict:
     
     stop_vllm()
     
+    # Build result with FullVRAMMonitor's detailed stats
+    # Note: Don't save raw_samples to JSON (too large for repeated experiments)
     result = {
         "mode": serde_type,
         "prefill_size": prefill_size,
         "success": success,
         "latency": latency_data,
-        "vram": vram_stats,
+        "vram": vram_stats,  # FullVRAMMonitor provides idle/peak/final breakdown
         "disk": {
             "before_files": before_files,
             "before_size_bytes": before_size,
@@ -636,14 +639,21 @@ def run_single_experiment(serde_type: str, prefill_size: int) -> dict:
         "vram_samples_count": len(vram_samples)
     }
     
-    if len(vram_samples) >= 10:
-        idle_vram = sum(s["vram_gb"] for s in vram_samples[:10]) / 10
-        result["vram"]["idle_gb"] = round(idle_vram, 4)
-    
-    result["vram"]["peak_gb"] = round(vram_stats.get("max_gb", 0), 4)
-    
-    print(f"[Result] Idle VRAM: {result['vram'].get('idle_gb', 'N/A')} GB")
-    print(f"[Result] Peak VRAM: {result['vram'].get('peak_gb', 'N/A')} GB")
+    # Print detailed results for FullVRAMMonitor
+    print(f"[Result] === Full VRAM Monitor Results ===")
+    if "idle" in vram_stats:
+        print(f"[Result] Idle:   used_vram={vram_stats['idle'].get('used_vram_gb', 'N/A')}GB, "
+              f"torch_alloc={vram_stats['idle'].get('torch_allocated_gb', 'N/A')}GB, "
+              f"kv_blocks={vram_stats['idle'].get('vllm_kv_blocks', 'N/A')}")
+    if "peak" in vram_stats:
+        print(f"[Result] Peak:   used_vram={vram_stats['peak'].get('used_vram_gb', 'N/A')}GB, "
+              f"torch_alloc={vram_stats['peak'].get('torch_allocated_gb', 'N/A')}GB, "
+              f"torch_peak={vram_stats['peak'].get('torch_peak_gb', 'N/A')}GB, "
+              f"cachegen_est={vram_stats['peak'].get('estimated_cachegen_buffer_gb', 'N/A')}GB")
+    if "final" in vram_stats:
+        print(f"[Result] Final:  used_vram={vram_stats['final'].get('used_vram_gb', 'N/A')}GB, "
+              f"torch_alloc={vram_stats['final'].get('torch_allocated_gb', 'N/A')}GB")
+    print(f"[Result] Samples: {vram_stats.get('sample_count', len(vram_samples))}")
     print(f"[Result] Disk offloaded: {result['disk']['offloaded_files']} files, {result['disk']['offloaded_size_mb']} MB")
     print(f"[Result] Chunk count: {chunk_count}")
     
@@ -710,7 +720,7 @@ def main():
     print(f"{'='*60}")
     print(f"Results saved to: {final_file}")
     
-    print("\n=== SUMMARY ===")
+    print("\n=== SUMMARY (Full VRAM Monitor) ===")
     for mode in MODES:
         print(f"\n{mode.upper()}:")
         if mode in all_results and isinstance(all_results[mode], dict):
@@ -722,13 +732,22 @@ def main():
                     vram = data.get("vram", {})
                     disk = data.get("disk", {})
                     chunks = data.get("chunk_count")
-                    print(f"  {pref} tokens: VRAM Peak={vram.get('peak_gb', 'N/A')}GB, "
-                          f"TTFT={lat.get('ttft_sec', 'N/A')}s, "
-                          f"TBT_p95={lat.get('tbt_p95_sec', 'N/A')}s, "
-                          f"TBT_p99={lat.get('tbt_p99_sec', 'N/A')}s, "
-                          f"TTLT={lat.get('ttlt_sec', 'N/A')}s, "
-                          f"Disk={disk.get('offloaded_size_mb', 'N/A')}MB, "
-                          f"Chunks={chunks}")
+                    
+                    # Extract FullVRAMMonitor fields
+                    idle = vram.get("idle", {})
+                    peak = vram.get("peak", {})
+                    
+                    print(f"  {pref} tokens:")
+                    print(f"    VRAM: idle={idle.get('used_vram_gb', 'N/A')}GB, "
+                          f"peak={peak.get('used_vram_gb', 'N/A')}GB")
+                    print(f"    PyTorch: idle={idle.get('torch_allocated_gb', 'N/A')}GB, "
+                          f"peak={peak.get('torch_allocated_gb', 'N/A')}GB, "
+                          f"torch_peak={peak.get('torch_peak_gb', 'N/A')}GB")
+                    print(f"    KV Blocks: {idle.get('vllm_kv_blocks', 'N/A')}, "
+                          f"CacheGen Buffer Est: {peak.get('estimated_cachegen_buffer_gb', 'N/A')}GB")
+                    print(f"    Latency: TTFT={lat.get('ttft_sec', 'N/A')}s, "
+                          f"TTLT={lat.get('ttlt_sec', 'N/A')}s")
+                    print(f"    Disk: {disk.get('offloaded_size_mb', 'N/A')}MB, Chunks={chunks}")
 
 
 if __name__ == "__main__":
