@@ -1052,6 +1052,7 @@ grep -iE "error|failed|exception" vllm_native.log | tail -20
 ## E.1 GitHub 레포지토리
 
 - **URL**: https://github.com/tkdGJS/cachegen_plus
+- **SSH**: git@github.com:tkdgGJS/cachegen_plus.git
 - **브랜치**: master (기본)
 
 ## E.2 주요 Git 명령어
