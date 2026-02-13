@@ -1,0 +1,28 @@
+# ============================================
+# CacheGen VRAM Experiment - Git Ignore
+# Only tkdgjs/experiment is tracked
+# ============================================
+
+# OS and environment
+.*
+!.gitignore
+
+# Ignore everything in tkdgjs except experiment
+tkdgjs/*
+!tkdgjs/experiment/
+
+# Ignore experiment subdirectories we don't want
+tkdgjs/experiment/__pycache__/
+tkdgjs/experiment/*_disk/
+tkdgjs/experiment/*_results*
+tkdgjs/experiment/*.log
+tkdgjs/experiment/final_results.json
+
+# Keep only these in experiment
+!tkdgjs/experiment/experiment_plan.md
+!tkdgjs/experiment/lmcache_native.yaml
+!tkdgjs/experiment/lmcache_cachegen.yaml
+!tkdgjs/experiment/run_vram_experiment.py
+!tkdgjs/experiment/send_request.py
+!tkdgjs/experiment/vram_monitor.py
+!tkdgjs/experiment/cachegen_vram_experiment/
