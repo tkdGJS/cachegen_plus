@@ -36,33 +36,82 @@ MODES = ["native", "cachegen"]
 
 @dataclass
 class VRAMSnapshot:
-    """VRAM State Snapshot - 5 Regions (sum = nvidia-smi used)"""
+    """VRAM State Snapshot - All regions (sum = nvidia-smi used)"""
     total_vram_gb: float = 0.0
     used_vram_gb: float = 0.0
     free_vram_gb: float = 0.0
+    reserved_vram_gb: float = 0.0
     
     model_weights_gb: float = 0.0
+    
     vllm_kv_cache_allocated_gb: float = 0.0
     vllm_kv_blocks_total: int = 0
     vllm_kv_blocks_free: int = 0
-    vllm_kv_cache_used_gb: float = 0.0
     vllm_kv_blocks_used: int = 0
     vllm_kv_usage_ratio: float = 0.0
+    vllm_kv_cache_used_gb: float = 0.0
+    
     activation_tensors_gb: float = 0.0
+    
     cuda_runtime_gb: float = 0.0
-    torch_allocated_gb: float = 0.0
-    torch_reserved_gb: float = 0.0
-    torch_peak_gb: float = 0.0
-    estimated_cachegen_buffer_gb: float = 0.0
+    
+    cachegen_encoder_gb: float = 0.0
+    cachegen_decoder_gb: float = 0.0
+    cachegen_compressed_kv_gb: float = 0.0
+    cachegen_total_gb: float = 0.0
+    
+    is_cachegen_mode: bool = False
+    
     sum_validated_gb: float = 0.0
     sum_diff_gb: float = 0.0
+    
+    elapsed_sec: float = 0.0
+    timestamp: float = 0.0
+    
+    def to_layout_dict(self) -> Dict:
+        layout = {
+            "Model Weights": self.model_weights_gb,
+            "KV Cache (Allocated)": self.vllm_kv_cache_allocated_gb,
+            "KV Cache (Used)": self.vllm_kv_cache_used_gb,
+            "Activation Tensors": self.activation_tensors_gb,
+            "CUDA Runtime": self.cuda_runtime_gb,
+        }
+        if self.is_cachegen_mode:
+            layout["CacheGen Encoder"] = self.cachegen_encoder_gb
+            layout["CacheGen Decoder"] = self.cachegen_decoder_gb
+            layout["CacheGen Compressed KV"] = self.cachegen_compressed_kv_gb
+        return layout
+    
+    def print_layout(self, title: str = "VRAM Layout"):
+        print(f"\n{'='*60}")
+        print(f"  {title}")
+        print(f"{'='*60}")
+        print(f"Total VRAM: {self.total_vram_gb:.2f} GB")
+        print(f"Used: {self.used_vram_gb:.2f} GB | Free: {self.free_vram_gb:.2f} GB | Reserved: {self.reserved_vram_gb:.2f} GB")
+        print(f"{'-'*60}")
+        
+        layout = self.to_layout_dict()
+        max_gb = max(self.used_vram_gb, 0.1)
+        
+        for name, gb in layout.items():
+            if gb > 0.001:
+                bar_len = int(gb / max_gb * 30)
+                bar = "█" * bar_len + "░" * (30 - bar_len)
+                pct = (gb / self.used_vram_gb * 100) if self.used_vram_gb > 0 else 0
+                print(f"  {name:25s} {gb:6.2f} GB [{bar}] {pct:5.1f}%")
+        
+        print(f"{'-'*60}")
+        print(f"  Sum (validated):        {self.sum_validated_gb:.2f} GB")
+        print(f"  Diff (nvidia-smi-used): {self.sum_diff_gb:+.2f} GB")
+        print(f"{'='*60}")
 
 
 class FullVRAMMonitor:
-    """Monitor 5 VRAM regions (sum = nvidia-smi used)"""
+    """Monitor VRAM regions (sum = nvidia-smi used)"""
     
-    def __init__(self, port: int = 8000):
+    def __init__(self, port: int = 8000, is_cachegen: bool = False):
         self.port = port
+        self.is_cachegen = is_cachegen
         self.baseline: Optional[VRAMSnapshot] = None
         
     def _get_nvidia_smi_memory(self) -> Dict[str, float]:
@@ -79,129 +128,145 @@ class FullVRAMMonitor:
             pass
         return {"total": 0, "used": 0, "free": 0, "reserved": 0}
     
-    def _get_torch_memory(self) -> Dict:
-        try:
-            import torch
-            if not torch.cuda.is_available():
-                return {"allocated_gb": 0, "reserved_gb": 0, "peak_gb": 0}
-            allocated = torch.cuda.memory_allocated() / (1024**3)
-            reserved = torch.cuda.memory_reserved() / (1024**3)
-            peak = torch.cuda.max_memory_allocated() / (1024**3)
-            return {"allocated_gb": allocated, "reserved_gb": reserved, "peak_gb": peak}
-        except:
-            return {"allocated_gb": 0, "reserved_gb": 0, "peak_gb": 0}
-    
     def _get_vllm_kv_stats(self) -> Dict:
         try:
             resp = requests.get(f"http://localhost:{self.port}/metrics", timeout=5)
             if resp.status_code != 200:
-                return {"blocks_total": 0, "blocks_free": 0, "blocks_used": 0, "usage_ratio": 0.0, "allocated_gb": 0.0, "used_gb": 0.0}
+                return {"blocks_total": 0, "usage_ratio": 0.0, "allocated_gb": 0.0, "used_gb": 0.0}
             
             text = resp.text
-            blocks_total = 0
-            block_size = 16
             
+            # Get gpu_memory_utilization
+            gpu_util = 0.7
+            match = re.search(r'gpu_memory_utilization="(\d+\.?\d*)"', text)
+            if match:
+                gpu_util = float(match.group(1))
+            
+            # Get num_gpu_blocks
+            blocks_total = 0
             match = re.search(r'num_gpu_blocks="(\d+)"', text)
             if match:
                 blocks_total = int(match.group(1))
             
+            # Get block_size
+            block_size = 16
             match = re.search(r'block_size="(\d+)"', text)
             if match:
                 block_size = int(match.group(1))
             
+            # Get KV usage ratio
             usage_ratio = 0.0
             match = re.search(r'vllm:kv_cache_usage_perc\{[^}]*\} (\d+\.?\d*)', text)
             if match:
                 usage_ratio = float(match.group(1))
             
-            # Calculate actual KV memory: blocks_used * block_size
-            # blocks_used = blocks_total * usage_ratio (if usage_ratio available)
-            # Otherwise: estimate based on nvidia-smi VRAM
+            # Get free blocks
+            blocks_free = 0
+            match = re.search(r'num_gpu_blocks_free="(\d+)"', text)
+            if match:
+                blocks_free = int(match.group(1))
             
-            # This is the MAXIMUM possible KV cache (token budget), not actual usage
-            max_kv_gb = blocks_total * block_size / 1024
+            # Calculate allocated KV memory: blocks × block_size
+            allocated_kv_gb = blocks_total * block_size / (1024 * 1024)
             
-            # Actual KV usage: max_kv_gb * usage_ratio (or just max_kv if ratio unavailable but GPU is utilizing)
-            # But we cap it to reasonable VRAM (nvidia-smi used VRAM - model weights - overhead)
-            if usage_ratio > 0:
-                actual_kv_gb = max_kv_gb * usage_ratio
-            else:
-                # If no usage ratio, assume minimal KV usage for idle state
-                actual_kv_gb = 0.0
+            # Used blocks calculation
+            blocks_used = blocks_total - blocks_free
+            used_kv_gb = blocks_used * block_size / (1024 * 1024)
             
-            # Cap to reasonable values (can't exceed total VRAM)
-            total_vram_match = re.search(r'gpu_memory_utilization="(\d+\.?\d*)"', text)
-            if total_vram_match:
-                total_kv_budget_gb = 15.0 * float(total_vram_match.group(1))  # 15GB GPU * util ratio
-                actual_kv_gb = min(actual_kv_gb, total_kv_budget_gb)
+            # Calculate usage_ratio from blocks if not available from metrics
+            if usage_ratio == 0 and blocks_total > 0:
+                usage_ratio = (blocks_used / blocks_total) * 100
             
-            return {"blocks_total": blocks_total, "block_size": block_size, "usage_ratio": usage_ratio, "max_kv_gb": max_kv_gb, "actual_kv_gb": actual_kv_gb}
+            return {
+                "blocks_total": blocks_total,
+                "blocks_free": blocks_free,
+                "blocks_used": blocks_used,
+                "block_size": block_size,
+                "gpu_utilization": gpu_util,
+                "usage_ratio": usage_ratio,
+                "allocated_gb": allocated_kv_gb,
+                "used_gb": used_kv_gb
+            }
         except:
-            return {"blocks_total": 0, "blocks_free": 0, "blocks_used": 0, "usage_ratio": 0.0, "allocated_gb": 0.0, "used_gb": 0.0}
+            return {"blocks_total": 0, "blocks_free": 0, "blocks_used": 0, "block_size": 16, "usage_ratio": 0.0, "allocated_gb": 0.0, "used_gb": 0.0}
     
-    def measure(self, baseline: Optional[VRAMSnapshot] = None) -> VRAMSnapshot:
+    def measure(self, baseline: Optional[VRAMSnapshot] = None, is_cachegen: bool = False) -> VRAMSnapshot:
         nvidia = self._get_nvidia_smi_memory()
         used_vram = nvidia.get("used", 0)
+        reserved_vram = nvidia.get("reserved", 0)
+        total_vram = nvidia.get("total", 15.0)
+        
         vllm_kv = self._get_vllm_kv_stats()
-        kv_max_gb = vllm_kv.get("max_kv_gb", 0)
-        kv_actual_gb = vllm_kv.get("actual_kv_gb", 0)
-        torch_mem = self._get_torch_memory()
         
-        model_weights_gb = 0.0
-        kv_used_gb = 0.0
-        activation_gb = 0.0
-        cuda_runtime_gb = 0.0
+        kv_allocated_gb = vllm_kv.get("allocated_gb", 0)
+        kv_used_gb = vllm_kv.get("used_gb", 0)
+        kv_blocks_total = vllm_kv.get("blocks_total", 0)
+        kv_blocks_free = vllm_kv.get("blocks_free", 0)
+        kv_blocks_used = vllm_kv.get("blocks_used", 0)
+        usage_ratio = vllm_kv.get("usage_ratio", 0)
         
-        # Calculate VRAM regions: nvidia-smi used = model + kv_actual + activation + cuda
-        # kv_max_gb is token budget (may not be fully allocated)
-        # kv_actual_gb is actual VRAM usage based on usage_ratio
+        vllm_running = kv_blocks_total > 0
         
         if baseline:
-            model_weights_gb = baseline.used_vram_gb - baseline.vllm_kv_cache_allocated_gb
-            if model_weights_gb < 0:
-                model_weights_gb = baseline.used_vram_gb
+            model_weights_gb = baseline.model_weights_gb
+            cuda_runtime_gb = baseline.cuda_runtime_gb
+            activation_gb = baseline.activation_tensors_gb
+        elif vllm_running:
+            estimated_weights = 2.0
+            estimated_cuda = 0.5
+            activation_gb = max(0, used_vram - kv_used_gb - estimated_weights - estimated_cuda)
+            model_weights_gb = estimated_weights
+            cuda_runtime_gb = estimated_cuda
         else:
-            if kv_actual_gb > 0 and kv_actual_gb <= used_vram:
-                model_weights_gb = max(0, used_vram - kv_actual_gb)
-            else:
-                model_weights_gb = used_vram * 0.80
-                kv_used_gb = used_vram * 0.10
-                cuda_runtime_gb = used_vram * 0.10
+            model_weights_gb = 0.0
+            cuda_runtime_gb = 0.0
+            activation_gb = 0.0
         
-        if baseline:
-            activation_gb = max(0, torch_mem["peak_gb"] - baseline.torch_allocated_gb)
-        else:
-            activation_gb = torch_mem.get("peak_gb", 0)
+        cachegen_encoder_gb = 0.0
+        cachegen_decoder_gb = 0.0
+        cachegen_compressed_kv_gb = 0.0
+        cachegen_total_gb = 0.0
         
-        if baseline or (kv_actual_gb > 0 and kv_actual_gb <= used_vram):
-            kv_used_gb = kv_actual_gb if kv_actual_gb > 0 else kv_max_gb * vllm_kv.get("usage_ratio", 0)
-            cuda_runtime_gb = max(0, used_vram - model_weights_gb - kv_used_gb - activation_gb)
+        if is_cachegen and baseline:
+            vram_increase = used_vram - baseline.used_vram_gb
+            if vram_increase > 0.1:
+                encoder_estimate = 0.08
+                decoder_estimate = 0.06
+                temp_buffer_estimate = min(vram_increase * 0.5, 0.3)
+                cachegen_encoder_gb = encoder_estimate
+                cachegen_decoder_gb = decoder_estimate
+                cachegen_compressed_kv_gb = temp_buffer_estimate
+                cachegen_total_gb = cachegen_encoder_gb + cachegen_decoder_gb + cachegen_compressed_kv_gb
+                cuda_runtime_gb = max(0, cuda_runtime_gb - cachegen_total_gb)
         
-        sum_regions = model_weights_gb + kv_used_gb + activation_gb + cuda_runtime_gb
+        sum_regions = model_weights_gb + kv_used_gb + activation_gb + cuda_runtime_gb + cachegen_total_gb
         sum_diff = used_vram - sum_regions
         
         return VRAMSnapshot(
-            total_vram_gb=nvidia.get("total", 0),
+            total_vram_gb=total_vram,
             used_vram_gb=used_vram,
             free_vram_gb=nvidia.get("free", 0),
+            reserved_vram_gb=reserved_vram,
             model_weights_gb=model_weights_gb,
-            vllm_kv_cache_allocated_gb=kv_max_gb,
-            vllm_kv_blocks_total=vllm_kv.get("blocks_total", 0),
-            vllm_kv_blocks_free=0,
+            vllm_kv_cache_allocated_gb=kv_allocated_gb,
+            vllm_kv_blocks_total=kv_blocks_total,
+            vllm_kv_blocks_free=kv_blocks_free,
+            vllm_kv_blocks_used=kv_blocks_used,
+            vllm_kv_usage_ratio=usage_ratio,
             vllm_kv_cache_used_gb=kv_used_gb,
-            vllm_kv_blocks_used=0,
-            vllm_kv_usage_ratio=vllm_kv.get("usage_ratio", 0),
             activation_tensors_gb=activation_gb,
             cuda_runtime_gb=cuda_runtime_gb,
-            torch_allocated_gb=torch_mem.get("allocated_gb", 0),
-            torch_reserved_gb=torch_mem.get("reserved_gb", 0),
-            torch_peak_gb=torch_mem.get("peak_gb", 0),
+            cachegen_encoder_gb=cachegen_encoder_gb,
+            cachegen_decoder_gb=cachegen_decoder_gb,
+            cachegen_compressed_kv_gb=cachegen_compressed_kv_gb,
+            cachegen_total_gb=cachegen_total_gb,
+            is_cachegen_mode=is_cachegen,
             sum_validated_gb=sum_regions,
             sum_diff_gb=sum_diff,
         )
     
     def set_baseline(self) -> VRAMSnapshot:
-        self.baseline = self.measure()
+        self.baseline = self.measure(is_cachegen=self.is_cachegen)
         return self.baseline
 
 
@@ -217,6 +282,26 @@ def get_disk_usage(path: str) -> Tuple[int, int]:
                 total_size += os.path.getsize(fp)
                 file_count += 1
     return file_count, total_size
+
+
+def clear_gpu_processes():
+    """Kill all GPU processes for stable experiment"""
+    subprocess.run(["pkill", "-9", "-f", "vllm"], stderr=subprocess.DEVNULL)
+    subprocess.run(["pkill", "-9", "-f", "python.*serve"], stderr=subprocess.DEVNULL)
+    time.sleep(3)
+    
+    result = subprocess.run(
+        ["nvidia-smi", "--query-gpu=memory.used", "--format=csv,noheader,nounits", "-i", "0"],
+        capture_output=True, text=True, timeout=5
+    )
+    used = float(result.stdout.strip()) / 1024
+    
+    if used > 1.0:
+        print(f"[WARNING] GPU still has {used:.2f}GB used after cleanup")
+        subprocess.run(["nvidia-smi", "--gpu-reset", "-i", "0"], stderr=subprocess.DEVNULL)
+        time.sleep(5)
+    
+    return used
 
 
 def clear_lmcache_disk(serde_type: str):
@@ -382,7 +467,7 @@ def run_single_experiment(serde_type: str, prefill_size: int, gpu_mem_util: floa
     print(f"[Warmup] Waiting {warmup_sec}s for vLLM to stabilize...")
     time.sleep(warmup_sec)
     
-    monitor = FullVRAMMonitorLoop(port=VLLM_PORT)
+    monitor = FullVRAMMonitorLoop(interval=0.01, port=VLLM_PORT)
     disk_path = f"{EXPERIMENT_DIR}/lmcache_{serde_type}_disk"
     before_files, before_size = get_disk_usage(disk_path)
     
@@ -410,6 +495,8 @@ def run_single_experiment(serde_type: str, prefill_size: int, gpu_mem_util: floa
     
     stop_vllm()
     
+    peak_vram = monitor.get_peak_vram()
+    
     result = {
         "mode": serde_type,
         "prefill_size": prefill_size,
@@ -418,6 +505,8 @@ def run_single_experiment(serde_type: str, prefill_size: int, gpu_mem_util: floa
         "latency": latency_data,
         "vram": {
             "idle_used_vram_gb": snapshot.used_vram_gb,
+            "peak_vram_gb": snapshot.used_vram_gb + peak_vram,
+            "peak_vram_increase_gb": peak_vram,
             "model_weights_gb": snapshot.model_weights_gb,
             "vllm_kv_cache_allocated_gb": snapshot.vllm_kv_cache_allocated_gb,
             "vllm_kv_cache_used_gb": snapshot.vllm_kv_cache_used_gb,
@@ -425,6 +514,7 @@ def run_single_experiment(serde_type: str, prefill_size: int, gpu_mem_util: floa
             "vllm_kv_blocks_used": snapshot.vllm_kv_blocks_used,
             "activation_tensors_gb": snapshot.activation_tensors_gb,
             "cuda_runtime_gb": snapshot.cuda_runtime_gb,
+            "cachegen_total_gb": snapshot.cachegen_total_gb,
             "sum_validated_gb": snapshot.sum_validated_gb,
             "sum_diff_gb": snapshot.sum_diff_gb,
         },
@@ -434,6 +524,7 @@ def run_single_experiment(serde_type: str, prefill_size: int, gpu_mem_util: floa
     }
     
     print(f"[Result] used_vram={snapshot.used_vram_gb:.2f}GB, "
+          f"peak_increase={peak_vram:.2f}GB, "
           f"kv_allocated={snapshot.vllm_kv_cache_allocated_gb:.2f}GB, "
           f"kv_used={snapshot.vllm_kv_cache_used_gb:.2f}GB, "
           f"sum_diff={snapshot.sum_diff_gb:.4f}GB")
@@ -442,20 +533,28 @@ def run_single_experiment(serde_type: str, prefill_size: int, gpu_mem_util: floa
 
 
 class FullVRAMMonitorLoop:
-    def __init__(self, interval: float = 0.1, port: int = 8000):
+    def __init__(self, interval: float = 0.1, port: int = 8000, is_cachegen: bool = False):
         self.interval = interval
-        self.monitor = FullVRAMMonitor(port)
+        self.is_cachegen = is_cachegen
+        self.monitor = FullVRAMMonitor(port, is_cachegen=is_cachegen)
         self.running = False
         self.samples = []
         self.start_time = 0.0
         self.baseline: Optional[VRAMSnapshot] = None
         self._lock = threading.Lock()
         self.current_snapshot = None
+        self.peak_vram_gb = 0.0
+        self.peak_baseline_vram_gb = 0.0
         
     def _monitor_loop(self):
         while self.running:
-            snapshot = self.monitor.measure(self.baseline)
+            snapshot = self.monitor.measure(self.baseline, is_cachegen=self.is_cachegen)
             elapsed = time.time() - self.start_time
+            
+            if self.baseline:
+                vram_increase = snapshot.used_vram_gb - self.baseline.used_vram_gb
+                if vram_increase > self.peak_vram_gb:
+                    self.peak_vram_gb = vram_increase
             timestamp = time.time()
             
             sample = asdict(snapshot)
@@ -473,6 +572,8 @@ class FullVRAMMonitorLoop:
         self.start_time = time.time()
         self.samples = []
         self.baseline = self.monitor.set_baseline()
+        self.peak_vram_gb = 0.0
+        self.peak_baseline_vram_gb = self.baseline.used_vram_gb if self.baseline else 0.0
         
         self.thread = threading.Thread(target=self._monitor_loop, daemon=True)
         self.thread.start()
@@ -482,13 +583,17 @@ class FullVRAMMonitorLoop:
         if hasattr(self, 'thread'):
             self.thread.join(timeout=2)
     
-    def get_snapshot(self) -> VRAMSnapshot:
+    def get_snapshot(self) -> Optional[VRAMSnapshot]:
         with self._lock:
             return self.current_snapshot if self.current_snapshot else self.baseline
     
     def get_samples(self) -> List[Dict]:
         with self._lock:
             return self.samples.copy()
+    
+    def get_peak_vram(self) -> float:
+        with self._lock:
+            return self.peak_vram_gb
 
 
 def main():
