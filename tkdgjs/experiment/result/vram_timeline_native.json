@@ -1,0 +1,47 @@
+[
+  {
+    "time": 0.0,
+    "stage": "vllm_start",
+    "vram_total": 2.32,
+    "kv_cache_used_gb": 0.0,
+    "kv_cache_unused_gb": 0.0,
+    "model_weights_gb": 2.32,
+    "buffers_gb": 0.0
+  },
+  {
+    "time": 5.0,
+    "stage": "vllm_ready",
+    "vram_total": 10.68,
+    "kv_cache_used_gb": 0.34,
+    "kv_cache_unused_gb": 0.0,
+    "model_weights_gb": 2.32,
+    "buffers_gb": 8.02
+  },
+  {
+    "time": 10.0,
+    "stage": "before_request",
+    "vram_total": 10.68,
+    "kv_cache_used_gb": 0.34,
+    "kv_cache_unused_gb": 0.0,
+    "model_weights_gb": 2.32,
+    "buffers_gb": 8.02
+  },
+  {
+    "time": 10.5,
+    "stage": "during_request",
+    "vram_total": 11.35,
+    "kv_cache_used_gb": 1.0,
+    "kv_cache_unused_gb": 0.0,
+    "model_weights_gb": 2.32,
+    "buffers_gb": 8.03
+  },
+  {
+    "time": 15.0,
+    "stage": "after_compression",
+    "vram_total": 10.68,
+    "kv_cache_used_gb": 0.34,
+    "kv_cache_unused_gb": 0.0,
+    "model_weights_gb": 2.32,
+    "buffers_gb": 8.02
+  }
+]
