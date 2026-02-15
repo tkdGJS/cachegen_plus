@@ -11,12 +11,12 @@ import numpy as np
 # VRAM Layout Breakdown based on actual operation
 # ==============================================
 
-# Native mode: Simple KV cache copy (no compression)
+# Native mode: Simple KV cache clone (no compression)
+# Native performs: kv_cache.clone()
+# VRAM usage: 1.0 GB (original) + 1.0 GB (clone) = 2.0 GB peak
 native_layout = {
     'KV Cache\n(Original)': 1.0,
-    'Model\nWeights': 0.0,  # Already loaded in VRAM, not counted in delta
-    'Temp\nCopy Buffer': 0.5,
-    'Other\n(Gradients, etc)': 0.5
+    'KV Cache\n(Clone)': 1.0,  # clone() creates a copy
 }
 
 # CacheGen mode: With compression (from actual VRAM logging)
@@ -34,8 +34,8 @@ cachegen_layout = {
     'KV Cache\n(Original)': 1.0,
     'Quantized\nKV': 0.25,       # 03_quant_value: +0.25 GB
     'CDF\nBuffer': 0.50,          # 05_calculate_cdf: +0.50 GB
-    'Encode\nBuffer': 0.30,      # 04+06+07: +0.30 GB
-    'Compressed\nOutput': 0.26   # Final output minus original
+    'Encode\nBuffer': 0.30,        # 04+06+07: +0.30 GB
+    'Compressed\nOutput': 0.26     # Final output minus original
 }
 
 # Calculate totals
