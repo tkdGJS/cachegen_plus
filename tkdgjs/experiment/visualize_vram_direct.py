@@ -104,7 +104,8 @@ for i, (c, n) in enumerate(zip(cachegen_values, native_values)):
                 color='green' if diff > 0 else 'red')
 
 plt.tight_layout()
-plt.savefig('/home/noslab-gpu/tkdgjs/experiment/vram_direct_comparison.png', dpi=150, bbox_inches='tight')
+output_path = '/home/noslab-gpu/tkdgjs/experiment/result/vram_direct_comparison.png'
+plt.savefig(output_path, dpi=150, bbox_inches='tight', facecolor='white')
 plt.close()
 
 print("Graph saved to: /home/noslab-gpu/tkdgjs/experiment/vram_direct_comparison.png")
