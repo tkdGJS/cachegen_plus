@@ -473,13 +473,21 @@ def run_single_experiment(serde_type: str, prefill_size: int, gpu_mem_util: floa
     
     vram_log_file = f"{EXPERIMENT_DIR}/vram_timeseries_{serde_type}_p{prefill_size}_gm{gpu_mem_util}.jsonl"
     
+    # Start monitoring 30 seconds BEFORE request
+    print(f"[Monitor] Starting VRAM monitoring 30s before request...")
     monitor.start()
-    time.sleep(2)
+    time.sleep(30)  # Wait 30 seconds before request (capture baseline stability)
     
+    # Send request (monitoring is active)
+    print(f"[Request] Sending request at {time.time() - monitor.start_time:.2f}s...")
     request_start_time = time.time()
     success, latency_data = send_request_and_measure(prefill_size)
+    request_end_time = time.time()
+    print(f"[Request] Request completed in {request_end_time - request_start_time:.2f}s")
     
-    time.sleep(10)
+    # Continue monitoring for 30 seconds AFTER request completes
+    print(f"[Monitor] Continuing monitoring for 30s after request...")
+    time.sleep(30)
     
     monitor.stop()
     snapshot = monitor.get_snapshot()
