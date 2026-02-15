@@ -1,0 +1,120 @@
+{
+  "native": [
+    {
+      "time": 0.0,
+      "stage": "cleanup",
+      "model_weights": 0.0,
+      "kv_paged_unused": 0.0,
+      "kv_used": 0.0,
+      "compression_buffers": 0.0,
+      "total": 0.0
+    },
+    {
+      "time": 2.0,
+      "stage": "start_vllm",
+      "model_weights": 2.32,
+      "kv_paged_unused": 0.0,
+      "kv_used": 0.0,
+      "compression_buffers": 0.0,
+      "total": 2.32
+    },
+    {
+      "time": 15.0,
+      "stage": "vllm_ready",
+      "model_weights": 2.32,
+      "kv_paged_unused": 7.36,
+      "kv_used": 0.34,
+      "compression_buffers": 0.0,
+      "total": 10.02
+    },
+    {
+      "time": 18.0,
+      "stage": "send_request",
+      "model_weights": 2.32,
+      "kv_paged_unused": 7.36,
+      "kv_used": 0.34,
+      "compression_buffers": 0.0,
+      "total": 10.02
+    },
+    {
+      "time": 18.5,
+      "stage": "during_copy",
+      "model_weights": 2.32,
+      "kv_paged_unused": 6.36,
+      "kv_used": 1.0,
+      "compression_buffers": 0.0,
+      "total": 9.68
+    },
+    {
+      "time": 25.0,
+      "stage": "after_copy",
+      "model_weights": 2.32,
+      "kv_paged_unused": 7.36,
+      "kv_used": 0.34,
+      "compression_buffers": 0.0,
+      "total": 10.02
+    }
+  ],
+  "cachegen": [
+    {
+      "time": 0.0,
+      "stage": "cleanup",
+      "model_weights": 0.0,
+      "kv_paged_unused": 0.0,
+      "kv_used": 0.0,
+      "compression_buffers": 0.0,
+      "total": 0.0
+    },
+    {
+      "time": 2.0,
+      "stage": "start_vllm",
+      "model_weights": 2.32,
+      "kv_paged_unused": 0.0,
+      "kv_used": 0.0,
+      "compression_buffers": 0.0,
+      "total": 2.32
+    },
+    {
+      "time": 15.0,
+      "stage": "vllm_ready",
+      "model_weights": 2.32,
+      "kv_paged_unused": 7.36,
+      "kv_used": 0.34,
+      "compression_buffers": 0.0,
+      "total": 10.02
+    },
+    {
+      "time": 18.0,
+      "stage": "send_request",
+      "model_weights": 2.32,
+      "kv_paged_unused": 7.36,
+      "kv_used": 0.34,
+      "compression_buffers": 0.0,
+      "total": 10.02
+    },
+    {
+      "time": 18.5,
+      "stage": "during_compression",
+      "model_weights": 2.32,
+      "kv_paged_unused": 6.36,
+      "kv_used": 1.0,
+      "compression_buffers": 0.67,
+      "total": 10.35
+    },
+    {
+      "time": 25.0,
+      "stage": "after_compression",
+      "model_weights": 2.32,
+      "kv_paged_unused": 7.36,
+      "kv_used": 0.34,
+      "compression_buffers": 0.0,
+      "total": 10.02
+    }
+  ],
+  "summary": {
+    "idle": 10.02,
+    "native_peak": 9.68,
+    "cachegen_peak": 10.35,
+    "diff": 0.67
+  }
+}
