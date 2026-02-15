@@ -30,7 +30,7 @@ VLLM_BIN = "/home/noslab-gpu/tkdgjs/tkdgjs/bin/vllm"
 
 # Sweep parameters
 GPU_MEMORY_UTILIZATIONS = [0.5, 0.7, 0.9]
-PREFILL_SIZES = [256, 512, 1024, 2048, 4096]
+PREFILL_SIZES = [256, 512, 1024, 2048, 4096, 8192]
 MODES = ["native", "cachegen"]
 
 
