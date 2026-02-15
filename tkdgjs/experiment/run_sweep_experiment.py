@@ -51,6 +51,11 @@ class VRAMSnapshot:
     vllm_kv_usage_ratio: float = 0.0
     vllm_kv_cache_used_gb: float = 0.0
     
+    vllm_kv_usage_perc: float = 0.0
+    vllm_num_running: int = 0
+    vllm_num_waiting: int = 0
+    vllm_num_swapped: int = 0
+    
     activation_tensors_gb: float = 0.0
     
     cuda_runtime_gb: float = 0.0
@@ -172,23 +177,55 @@ class FullVRAMMonitor:
             # Used blocks calculation
             blocks_used = blocks_total - blocks_free
             used_kv_gb = blocks_used * block_size / (1024 * 1024)
-            
-            # Calculate usage_ratio from blocks if not available from metrics
-            if usage_ratio == 0 and blocks_total > 0:
-                usage_ratio = (blocks_used / blocks_total) * 100
-            
+
             return {
-                "blocks_total": blocks_total,
-                "blocks_free": blocks_free,
-                "blocks_used": blocks_used,
-                "block_size": block_size,
-                "gpu_utilization": gpu_util,
-                "usage_ratio": usage_ratio,
-                "allocated_gb": allocated_kv_gb,
+                "blocks_total": blocks_total, 
+                "blocks_free": blocks_free, 
+                "blocks_used": blocks_used, 
+                "block_size": block_size, 
+                "usage_ratio": usage_ratio, 
+                "allocated_gb": allocated_kv_gb, 
                 "used_gb": used_kv_gb
             }
         except:
             return {"blocks_total": 0, "blocks_free": 0, "blocks_used": 0, "block_size": 16, "usage_ratio": 0.0, "allocated_gb": 0.0, "used_gb": 0.0}
+    
+    def _get_vllm_metrics(self) -> Dict:
+        try:
+            resp = requests.get(f"http://localhost:{self.port}/metrics", timeout=2)
+            if resp.status_code != 200:
+                return {"kv_usage_perc": 0.0, "num_running": 0, "num_waiting": 0, "num_swapped": 0}
+            
+            text = resp.text
+            
+            kv_usage_perc = 0.0
+            match = re.search(r'vllm:kv_cache_usage_perc\{[^}]*\} (\d+\.?\d*)', text)
+            if match:
+                kv_usage_perc = float(match.group(1))
+            
+            num_running = 0
+            match = re.search(r'vllm:num_running_requests (\d+)', text)
+            if match:
+                num_running = int(match.group(1))
+            
+            num_waiting = 0
+            match = re.search(r'vllm:num_waiting_requests (\d+)', text)
+            if match:
+                num_waiting = int(match.group(1))
+            
+            num_swapped = 0
+            match = re.search(r'vllm:num_swapped_requests (\d+)', text)
+            if match:
+                num_swapped = int(match.group(1))
+            
+            return {
+                "kv_usage_perc": kv_usage_perc,
+                "num_running": num_running,
+                "num_waiting": num_waiting,
+                "num_swapped": num_swapped
+            }
+        except:
+            return {"kv_usage_perc": 0.0, "num_running": 0, "num_waiting": 0, "num_swapped": 0}
     
     def measure(self, baseline: Optional[VRAMSnapshot] = None, is_cachegen: bool = False) -> VRAMSnapshot:
         nvidia = self._get_nvidia_smi_memory()
@@ -197,6 +234,7 @@ class FullVRAMMonitor:
         total_vram = nvidia.get("total", 15.0)
         
         vllm_kv = self._get_vllm_kv_stats()
+        vllm_metrics = self._get_vllm_metrics()
         
         kv_allocated_gb = vllm_kv.get("allocated_gb", 0)
         kv_used_gb = vllm_kv.get("used_gb", 0)
@@ -204,6 +242,11 @@ class FullVRAMMonitor:
         kv_blocks_free = vllm_kv.get("blocks_free", 0)
         kv_blocks_used = vllm_kv.get("blocks_used", 0)
         usage_ratio = vllm_kv.get("usage_ratio", 0)
+        
+        kv_usage_perc = vllm_metrics.get("kv_usage_perc", 0.0)
+        num_running = vllm_metrics.get("num_running", 0)
+        num_waiting = vllm_metrics.get("num_waiting", 0)
+        num_swapped = vllm_metrics.get("num_swapped", 0)
         
         vllm_running = kv_blocks_total > 0
         
@@ -254,6 +297,10 @@ class FullVRAMMonitor:
             vllm_kv_blocks_used=kv_blocks_used,
             vllm_kv_usage_ratio=usage_ratio,
             vllm_kv_cache_used_gb=kv_used_gb,
+            vllm_kv_usage_perc=kv_usage_perc,
+            vllm_num_running=num_running,
+            vllm_num_waiting=num_waiting,
+            vllm_num_swapped=num_swapped,
             activation_tensors_gb=activation_gb,
             cuda_runtime_gb=cuda_runtime_gb,
             cachegen_encoder_gb=cachegen_encoder_gb,
@@ -485,8 +532,12 @@ def run_single_experiment(serde_type: str, prefill_size: int, gpu_mem_util: floa
     request_end_time = time.time()
     print(f"[Request] Request completed in {request_end_time - request_start_time:.2f}s")
     
-    # Continue monitoring for 30 seconds AFTER request completes
-    print(f"[Monitor] Continuing monitoring for 30s after request...")
+    snapshot_at_completion = monitor.monitor.measure(is_cachegen=(serde_type == "cachegen"))
+    print(f"[Snapshot at completion] VRAM={snapshot_at_completion.used_vram_gb:.2f}GB, "
+          f"KV_usage={snapshot_at_completion.vllm_kv_usage_perc:.2f}%, "
+          f"running={snapshot_at_completion.vllm_num_running}, "
+          f"waiting={snapshot_at_completion.vllm_num_waiting}")
+    
     time.sleep(30)
     
     monitor.stop()
@@ -520,11 +571,22 @@ def run_single_experiment(serde_type: str, prefill_size: int, gpu_mem_util: floa
             "vllm_kv_cache_used_gb": snapshot.vllm_kv_cache_used_gb,
             "vllm_kv_blocks_total": snapshot.vllm_kv_blocks_total,
             "vllm_kv_blocks_used": snapshot.vllm_kv_blocks_used,
+            "vllm_kv_usage_perc": snapshot.vllm_kv_usage_perc,
+            "vllm_num_running": snapshot.vllm_num_running,
+            "vllm_num_waiting": snapshot.vllm_num_waiting,
+            "vllm_num_swapped": snapshot.vllm_num_swapped,
             "activation_tensors_gb": snapshot.activation_tensors_gb,
             "cuda_runtime_gb": snapshot.cuda_runtime_gb,
             "cachegen_total_gb": snapshot.cachegen_total_gb,
             "sum_validated_gb": snapshot.sum_validated_gb,
             "sum_diff_gb": snapshot.sum_diff_gb,
+        },
+        "vram_at_completion": {
+            "used_vram_gb": snapshot_at_completion.used_vram_gb,
+            "vllm_kv_usage_perc": snapshot_at_completion.vllm_kv_usage_perc,
+            "vllm_num_running": snapshot_at_completion.vllm_num_running,
+            "vllm_num_waiting": snapshot_at_completion.vllm_num_waiting,
+            "vllm_num_swapped": snapshot_at_completion.vllm_num_swapped,
         },
         "disk": {
             "offloaded_size_mb": round((after_size - before_size) / (1024**2), 2)
@@ -535,6 +597,9 @@ def run_single_experiment(serde_type: str, prefill_size: int, gpu_mem_util: floa
           f"peak_increase={peak_vram:.2f}GB, "
           f"kv_allocated={snapshot.vllm_kv_cache_allocated_gb:.2f}GB, "
           f"kv_used={snapshot.vllm_kv_cache_used_gb:.2f}GB, "
+          f"kv_usage_perc={snapshot.vllm_kv_usage_perc:.2f}%, "
+          f"running={snapshot.vllm_num_running}, "
+          f"waiting={snapshot.vllm_num_waiting}, "
           f"sum_diff={snapshot.sum_diff_gb:.4f}GB")
     
     return result
