@@ -1,0 +1,32 @@
+[
+  {
+    "time": 0.0,
+    "stage": "cleanup",
+    "vram_total": 0.0
+  },
+  {
+    "time": 2.0,
+    "stage": "start_vllm",
+    "vram_total": 2.32
+  },
+  {
+    "time": 15.0,
+    "stage": "vllm_ready",
+    "vram_total": 10.68
+  },
+  {
+    "time": 18.0,
+    "stage": "send_request",
+    "vram_total": 10.68
+  },
+  {
+    "time": 18.5,
+    "stage": "during_compression",
+    "vram_total": 12.35
+  },
+  {
+    "time": 25.0,
+    "stage": "after_compression",
+    "vram_total": 10.68
+  }
+]

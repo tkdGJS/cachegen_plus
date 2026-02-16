@@ -1,0 +1,1399 @@
+{
+  "gm_0.5": {
+    "native": {
+      "256": {
+        "mode": "native",
+        "prefill_size": 256,
+        "gpu_memory_utilization": 0.5,
+        "success": true,
+        "latency": {
+          "success": true,
+          "prompt_tokens": 256,
+          "output_tokens": 1,
+          "ttft_sec": 1.8222,
+          "ttlt_sec": 1.8222
+        },
+        "vram": {
+          "idle_used_vram_gb": 7.4580078125,
+          "peak_vram_gb": 7.4580078125,
+          "peak_vram_increase_gb": 0.0,
+          "model_weights_gb": 2.0,
+          "vllm_kv_cache_allocated_gb": 0.1351470947265625,
+          "vllm_kv_cache_used_gb": 0.1351470947265625,
+          "vllm_kv_blocks_total": 8857,
+          "vllm_kv_blocks_used": 8857,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0,
+          "activation_tensors_gb": 4.8228607177734375,
+          "cuda_runtime_gb": 0.5,
+          "cachegen_total_gb": 0.0,
+          "sum_validated_gb": 7.4580078125,
+          "sum_diff_gb": 0.0
+        },
+        "vram_at_completion": {
+          "used_vram_gb": 7.4580078125,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0
+        },
+        "disk": {
+          "offloaded_size_mb": 0.0
+        }
+      },
+      "512": {
+        "mode": "native",
+        "prefill_size": 512,
+        "gpu_memory_utilization": 0.5,
+        "success": true,
+        "latency": {
+          "success": true,
+          "prompt_tokens": 512,
+          "output_tokens": 1,
+          "ttft_sec": 1.9177,
+          "ttlt_sec": 1.9177
+        },
+        "vram": {
+          "idle_used_vram_gb": 7.4580078125,
+          "peak_vram_gb": 7.4580078125,
+          "peak_vram_increase_gb": 0.0,
+          "model_weights_gb": 2.0,
+          "vllm_kv_cache_allocated_gb": 0.1351470947265625,
+          "vllm_kv_cache_used_gb": 0.1351470947265625,
+          "vllm_kv_blocks_total": 8857,
+          "vllm_kv_blocks_used": 8857,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0,
+          "activation_tensors_gb": 4.8228607177734375,
+          "cuda_runtime_gb": 0.5,
+          "cachegen_total_gb": 0.0,
+          "sum_validated_gb": 7.4580078125,
+          "sum_diff_gb": 0.0
+        },
+        "vram_at_completion": {
+          "used_vram_gb": 7.4580078125,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0
+        },
+        "disk": {
+          "offloaded_size_mb": 0.0
+        }
+      },
+      "1024": {
+        "mode": "native",
+        "prefill_size": 1024,
+        "gpu_memory_utilization": 0.5,
+        "success": true,
+        "latency": {
+          "success": true,
+          "prompt_tokens": 1024,
+          "output_tokens": 1,
+          "ttft_sec": 2.0889,
+          "ttlt_sec": 2.0889
+        },
+        "vram": {
+          "idle_used_vram_gb": 7.4580078125,
+          "peak_vram_gb": 7.4580078125,
+          "peak_vram_increase_gb": 0.0,
+          "model_weights_gb": 2.0,
+          "vllm_kv_cache_allocated_gb": 0.1351470947265625,
+          "vllm_kv_cache_used_gb": 0.1351470947265625,
+          "vllm_kv_blocks_total": 8857,
+          "vllm_kv_blocks_used": 8857,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0,
+          "activation_tensors_gb": 4.8228607177734375,
+          "cuda_runtime_gb": 0.5,
+          "cachegen_total_gb": 0.0,
+          "sum_validated_gb": 7.4580078125,
+          "sum_diff_gb": 0.0
+        },
+        "vram_at_completion": {
+          "used_vram_gb": 7.4580078125,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0
+        },
+        "disk": {
+          "offloaded_size_mb": 0.0
+        }
+      },
+      "2048": {
+        "mode": "native",
+        "prefill_size": 2048,
+        "gpu_memory_utilization": 0.5,
+        "success": true,
+        "latency": {
+          "success": true,
+          "prompt_tokens": 2048,
+          "output_tokens": 1,
+          "ttft_sec": 2.4431,
+          "ttlt_sec": 2.4431
+        },
+        "vram": {
+          "idle_used_vram_gb": 7.4580078125,
+          "peak_vram_gb": 7.4580078125,
+          "peak_vram_increase_gb": 0.0,
+          "model_weights_gb": 2.0,
+          "vllm_kv_cache_allocated_gb": 0.1351470947265625,
+          "vllm_kv_cache_used_gb": 0.1351470947265625,
+          "vllm_kv_blocks_total": 8857,
+          "vllm_kv_blocks_used": 8857,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0,
+          "activation_tensors_gb": 4.8228607177734375,
+          "cuda_runtime_gb": 0.5,
+          "cachegen_total_gb": 0.0,
+          "sum_validated_gb": 7.4580078125,
+          "sum_diff_gb": 0.0
+        },
+        "vram_at_completion": {
+          "used_vram_gb": 7.4580078125,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0
+        },
+        "disk": {
+          "offloaded_size_mb": 0.0
+        }
+      },
+      "4096": {
+        "mode": "native",
+        "prefill_size": 4096,
+        "gpu_memory_utilization": 0.5,
+        "success": true,
+        "latency": {
+          "success": true,
+          "prompt_tokens": 4096,
+          "output_tokens": 1,
+          "ttft_sec": 3.7985,
+          "ttlt_sec": 3.7985
+        },
+        "vram": {
+          "idle_used_vram_gb": 7.4580078125,
+          "peak_vram_gb": 7.4580078125,
+          "peak_vram_increase_gb": 0.0,
+          "model_weights_gb": 2.0,
+          "vllm_kv_cache_allocated_gb": 0.1351470947265625,
+          "vllm_kv_cache_used_gb": 0.1351470947265625,
+          "vllm_kv_blocks_total": 8857,
+          "vllm_kv_blocks_used": 8857,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0,
+          "activation_tensors_gb": 4.8228607177734375,
+          "cuda_runtime_gb": 0.5,
+          "cachegen_total_gb": 0.0,
+          "sum_validated_gb": 7.4580078125,
+          "sum_diff_gb": 0.0
+        },
+        "vram_at_completion": {
+          "used_vram_gb": 7.4580078125,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0
+        },
+        "disk": {
+          "offloaded_size_mb": 0.0
+        }
+      },
+      "8192": {
+        "mode": "native",
+        "prefill_size": 8192,
+        "gpu_memory_utilization": 0.5,
+        "success": false,
+        "latency": {
+          "error": "{\"error\":{\"message\":\"This model's maximum context length is 8160 tokens. However, your request has 8194 input tokens. Please reduce the length of the input messages. (parameter=input_tokens, value=8194)\",\"type\":\"BadRequestError\",\"param\":\"input_tokens\",\"code\":400}}"
+        },
+        "vram": {
+          "idle_used_vram_gb": 7.4580078125,
+          "peak_vram_gb": 7.4580078125,
+          "peak_vram_increase_gb": 0.0,
+          "model_weights_gb": 2.0,
+          "vllm_kv_cache_allocated_gb": 0.1351470947265625,
+          "vllm_kv_cache_used_gb": 0.1351470947265625,
+          "vllm_kv_blocks_total": 8857,
+          "vllm_kv_blocks_used": 8857,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0,
+          "activation_tensors_gb": 4.8228607177734375,
+          "cuda_runtime_gb": 0.5,
+          "cachegen_total_gb": 0.0,
+          "sum_validated_gb": 7.4580078125,
+          "sum_diff_gb": 0.0
+        },
+        "vram_at_completion": {
+          "used_vram_gb": 7.4580078125,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0
+        },
+        "disk": {
+          "offloaded_size_mb": 0.0
+        }
+      }
+    },
+    "cachegen": {
+      "256": {
+        "mode": "cachegen",
+        "prefill_size": 256,
+        "gpu_memory_utilization": 0.5,
+        "success": true,
+        "latency": {
+          "success": true,
+          "prompt_tokens": 256,
+          "output_tokens": 1,
+          "ttft_sec": 1.8169,
+          "ttlt_sec": 1.8169
+        },
+        "vram": {
+          "idle_used_vram_gb": 7.4580078125,
+          "peak_vram_gb": 7.4580078125,
+          "peak_vram_increase_gb": 0.0,
+          "model_weights_gb": 2.0,
+          "vllm_kv_cache_allocated_gb": 0.1351470947265625,
+          "vllm_kv_cache_used_gb": 0.1351470947265625,
+          "vllm_kv_blocks_total": 8857,
+          "vllm_kv_blocks_used": 8857,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0,
+          "activation_tensors_gb": 4.8228607177734375,
+          "cuda_runtime_gb": 0.5,
+          "cachegen_total_gb": 0.0,
+          "sum_validated_gb": 7.4580078125,
+          "sum_diff_gb": 0.0
+        },
+        "vram_at_completion": {
+          "used_vram_gb": 7.4580078125,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0
+        },
+        "disk": {
+          "offloaded_size_mb": 8.06
+        }
+      },
+      "512": {
+        "mode": "cachegen",
+        "prefill_size": 512,
+        "gpu_memory_utilization": 0.5,
+        "success": true,
+        "latency": {
+          "success": true,
+          "prompt_tokens": 512,
+          "output_tokens": 1,
+          "ttft_sec": 1.8841,
+          "ttlt_sec": 1.8841
+        },
+        "vram": {
+          "idle_used_vram_gb": 7.4580078125,
+          "peak_vram_gb": 7.4580078125,
+          "peak_vram_increase_gb": 0.0,
+          "model_weights_gb": 2.0,
+          "vllm_kv_cache_allocated_gb": 0.1351470947265625,
+          "vllm_kv_cache_used_gb": 0.1351470947265625,
+          "vllm_kv_blocks_total": 8857,
+          "vllm_kv_blocks_used": 8857,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0,
+          "activation_tensors_gb": 4.8228607177734375,
+          "cuda_runtime_gb": 0.5,
+          "cachegen_total_gb": 0.0,
+          "sum_validated_gb": 7.4580078125,
+          "sum_diff_gb": 0.0
+        },
+        "vram_at_completion": {
+          "used_vram_gb": 7.4580078125,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0
+        },
+        "disk": {
+          "offloaded_size_mb": 16.06
+        }
+      },
+      "1024": {
+        "mode": "cachegen",
+        "prefill_size": 1024,
+        "gpu_memory_utilization": 0.5,
+        "success": true,
+        "latency": {
+          "success": true,
+          "prompt_tokens": 1024,
+          "output_tokens": 1,
+          "ttft_sec": 2.0769,
+          "ttlt_sec": 2.0769
+        },
+        "vram": {
+          "idle_used_vram_gb": 7.4580078125,
+          "peak_vram_gb": 7.4580078125,
+          "peak_vram_increase_gb": 0.0,
+          "model_weights_gb": 2.0,
+          "vllm_kv_cache_allocated_gb": 0.1351470947265625,
+          "vllm_kv_cache_used_gb": 0.1351470947265625,
+          "vllm_kv_blocks_total": 8857,
+          "vllm_kv_blocks_used": 8857,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0,
+          "activation_tensors_gb": 4.8228607177734375,
+          "cuda_runtime_gb": 0.5,
+          "cachegen_total_gb": 0.0,
+          "sum_validated_gb": 7.4580078125,
+          "sum_diff_gb": 0.0
+        },
+        "vram_at_completion": {
+          "used_vram_gb": 7.4580078125,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0
+        },
+        "disk": {
+          "offloaded_size_mb": 32.06
+        }
+      },
+      "2048": {
+        "mode": "cachegen",
+        "prefill_size": 2048,
+        "gpu_memory_utilization": 0.5,
+        "success": true,
+        "latency": {
+          "success": true,
+          "prompt_tokens": 2048,
+          "output_tokens": 1,
+          "ttft_sec": 2.4038,
+          "ttlt_sec": 2.4038
+        },
+        "vram": {
+          "idle_used_vram_gb": 7.4580078125,
+          "peak_vram_gb": 7.4580078125,
+          "peak_vram_increase_gb": 0.0,
+          "model_weights_gb": 2.0,
+          "vllm_kv_cache_allocated_gb": 0.1351470947265625,
+          "vllm_kv_cache_used_gb": 0.1351470947265625,
+          "vllm_kv_blocks_total": 8857,
+          "vllm_kv_blocks_used": 8857,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0,
+          "activation_tensors_gb": 4.8228607177734375,
+          "cuda_runtime_gb": 0.5,
+          "cachegen_total_gb": 0.0,
+          "sum_validated_gb": 7.4580078125,
+          "sum_diff_gb": 0.0
+        },
+        "vram_at_completion": {
+          "used_vram_gb": 7.4580078125,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0
+        },
+        "disk": {
+          "offloaded_size_mb": 64.06
+        }
+      },
+      "4096": {
+        "mode": "cachegen",
+        "prefill_size": 4096,
+        "gpu_memory_utilization": 0.5,
+        "success": true,
+        "latency": {
+          "success": true,
+          "prompt_tokens": 4096,
+          "output_tokens": 1,
+          "ttft_sec": 3.7115,
+          "ttlt_sec": 3.7115
+        },
+        "vram": {
+          "idle_used_vram_gb": 7.4580078125,
+          "peak_vram_gb": 7.4580078125,
+          "peak_vram_increase_gb": 0.0,
+          "model_weights_gb": 2.0,
+          "vllm_kv_cache_allocated_gb": 0.1351470947265625,
+          "vllm_kv_cache_used_gb": 0.1351470947265625,
+          "vllm_kv_blocks_total": 8857,
+          "vllm_kv_blocks_used": 8857,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0,
+          "activation_tensors_gb": 4.8228607177734375,
+          "cuda_runtime_gb": 0.5,
+          "cachegen_total_gb": 0.0,
+          "sum_validated_gb": 7.4580078125,
+          "sum_diff_gb": 0.0
+        },
+        "vram_at_completion": {
+          "used_vram_gb": 7.4580078125,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0
+        },
+        "disk": {
+          "offloaded_size_mb": 128.0
+        }
+      },
+      "8192": {
+        "mode": "cachegen",
+        "prefill_size": 8192,
+        "gpu_memory_utilization": 0.5,
+        "success": false,
+        "latency": {
+          "error": "{\"error\":{\"message\":\"This model's maximum context length is 8160 tokens. However, your request has 8194 input tokens. Please reduce the length of the input messages. (parameter=input_tokens, value=8194)\",\"type\":\"BadRequestError\",\"param\":\"input_tokens\",\"code\":400}}"
+        },
+        "vram": {
+          "idle_used_vram_gb": 7.4580078125,
+          "peak_vram_gb": 7.4580078125,
+          "peak_vram_increase_gb": 0.0,
+          "model_weights_gb": 2.0,
+          "vllm_kv_cache_allocated_gb": 0.1351470947265625,
+          "vllm_kv_cache_used_gb": 0.1351470947265625,
+          "vllm_kv_blocks_total": 8857,
+          "vllm_kv_blocks_used": 8857,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0,
+          "activation_tensors_gb": 4.8228607177734375,
+          "cuda_runtime_gb": 0.5,
+          "cachegen_total_gb": 0.0,
+          "sum_validated_gb": 7.4580078125,
+          "sum_diff_gb": 0.0
+        },
+        "vram_at_completion": {
+          "used_vram_gb": 7.4580078125,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0
+        },
+        "disk": {
+          "offloaded_size_mb": 0.0
+        }
+      }
+    }
+  },
+  "gm_0.7": {
+    "native": {
+      "256": {
+        "mode": "native",
+        "prefill_size": 256,
+        "gpu_memory_utilization": 0.7,
+        "success": true,
+        "latency": {
+          "success": true,
+          "prompt_tokens": 256,
+          "output_tokens": 1,
+          "ttft_sec": 1.9512,
+          "ttlt_sec": 1.9512
+        },
+        "vram": {
+          "idle_used_vram_gb": 10.3642578125,
+          "peak_vram_gb": 10.3642578125,
+          "peak_vram_increase_gb": 0.0,
+          "model_weights_gb": 2.0,
+          "vllm_kv_cache_allocated_gb": 0.2261810302734375,
+          "vllm_kv_cache_used_gb": 0.2261810302734375,
+          "vllm_kv_blocks_total": 14823,
+          "vllm_kv_blocks_used": 14823,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0,
+          "activation_tensors_gb": 7.6380767822265625,
+          "cuda_runtime_gb": 0.5,
+          "cachegen_total_gb": 0.0,
+          "sum_validated_gb": 10.3642578125,
+          "sum_diff_gb": 0.0
+        },
+        "vram_at_completion": {
+          "used_vram_gb": 10.3642578125,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0
+        },
+        "disk": {
+          "offloaded_size_mb": 0.0
+        }
+      },
+      "512": {
+        "mode": "native",
+        "prefill_size": 512,
+        "gpu_memory_utilization": 0.7,
+        "success": true,
+        "latency": {
+          "success": true,
+          "prompt_tokens": 512,
+          "output_tokens": 1,
+          "ttft_sec": 1.8785,
+          "ttlt_sec": 1.8785
+        },
+        "vram": {
+          "idle_used_vram_gb": 10.3642578125,
+          "peak_vram_gb": 10.3642578125,
+          "peak_vram_increase_gb": 0.0,
+          "model_weights_gb": 2.0,
+          "vllm_kv_cache_allocated_gb": 0.2261810302734375,
+          "vllm_kv_cache_used_gb": 0.2261810302734375,
+          "vllm_kv_blocks_total": 14823,
+          "vllm_kv_blocks_used": 14823,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0,
+          "activation_tensors_gb": 7.6380767822265625,
+          "cuda_runtime_gb": 0.5,
+          "cachegen_total_gb": 0.0,
+          "sum_validated_gb": 10.3642578125,
+          "sum_diff_gb": 0.0
+        },
+        "vram_at_completion": {
+          "used_vram_gb": 10.3642578125,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0
+        },
+        "disk": {
+          "offloaded_size_mb": 0.0
+        }
+      },
+      "1024": {
+        "mode": "native",
+        "prefill_size": 1024,
+        "gpu_memory_utilization": 0.7,
+        "success": true,
+        "latency": {
+          "success": true,
+          "prompt_tokens": 1024,
+          "output_tokens": 1,
+          "ttft_sec": 2.0445,
+          "ttlt_sec": 2.0445
+        },
+        "vram": {
+          "idle_used_vram_gb": 10.3642578125,
+          "peak_vram_gb": 10.3642578125,
+          "peak_vram_increase_gb": 0.0,
+          "model_weights_gb": 2.0,
+          "vllm_kv_cache_allocated_gb": 0.2261810302734375,
+          "vllm_kv_cache_used_gb": 0.2261810302734375,
+          "vllm_kv_blocks_total": 14823,
+          "vllm_kv_blocks_used": 14823,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0,
+          "activation_tensors_gb": 7.6380767822265625,
+          "cuda_runtime_gb": 0.5,
+          "cachegen_total_gb": 0.0,
+          "sum_validated_gb": 10.3642578125,
+          "sum_diff_gb": 0.0
+        },
+        "vram_at_completion": {
+          "used_vram_gb": 10.3642578125,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0
+        },
+        "disk": {
+          "offloaded_size_mb": 0.0
+        }
+      },
+      "2048": {
+        "mode": "native",
+        "prefill_size": 2048,
+        "gpu_memory_utilization": 0.7,
+        "success": true,
+        "latency": {
+          "success": true,
+          "prompt_tokens": 2048,
+          "output_tokens": 1,
+          "ttft_sec": 2.4494,
+          "ttlt_sec": 2.4494
+        },
+        "vram": {
+          "idle_used_vram_gb": 10.3642578125,
+          "peak_vram_gb": 10.3642578125,
+          "peak_vram_increase_gb": 0.0,
+          "model_weights_gb": 2.0,
+          "vllm_kv_cache_allocated_gb": 0.2261810302734375,
+          "vllm_kv_cache_used_gb": 0.2261810302734375,
+          "vllm_kv_blocks_total": 14823,
+          "vllm_kv_blocks_used": 14823,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0,
+          "activation_tensors_gb": 7.6380767822265625,
+          "cuda_runtime_gb": 0.5,
+          "cachegen_total_gb": 0.0,
+          "sum_validated_gb": 10.3642578125,
+          "sum_diff_gb": 0.0
+        },
+        "vram_at_completion": {
+          "used_vram_gb": 10.3642578125,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0
+        },
+        "disk": {
+          "offloaded_size_mb": 0.0
+        }
+      },
+      "4096": {
+        "mode": "native",
+        "prefill_size": 4096,
+        "gpu_memory_utilization": 0.7,
+        "success": true,
+        "latency": {
+          "success": true,
+          "prompt_tokens": 4096,
+          "output_tokens": 1,
+          "ttft_sec": 3.7223,
+          "ttlt_sec": 3.7223
+        },
+        "vram": {
+          "idle_used_vram_gb": 10.3642578125,
+          "peak_vram_gb": 10.3642578125,
+          "peak_vram_increase_gb": 0.0,
+          "model_weights_gb": 2.0,
+          "vllm_kv_cache_allocated_gb": 0.2261810302734375,
+          "vllm_kv_cache_used_gb": 0.2261810302734375,
+          "vllm_kv_blocks_total": 14823,
+          "vllm_kv_blocks_used": 14823,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0,
+          "activation_tensors_gb": 7.6380767822265625,
+          "cuda_runtime_gb": 0.5,
+          "cachegen_total_gb": 0.0,
+          "sum_validated_gb": 10.3642578125,
+          "sum_diff_gb": 0.0
+        },
+        "vram_at_completion": {
+          "used_vram_gb": 10.3642578125,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0
+        },
+        "disk": {
+          "offloaded_size_mb": 0.0
+        }
+      },
+      "8192": {
+        "error": "[Errno 32] Broken pipe"
+      }
+    },
+    "cachegen": {
+      "256": {
+        "mode": "cachegen",
+        "prefill_size": 256,
+        "gpu_memory_utilization": 0.7,
+        "success": true,
+        "latency": {
+          "success": true,
+          "prompt_tokens": 256,
+          "output_tokens": 1,
+          "ttft_sec": 1.8266,
+          "ttlt_sec": 1.8266
+        },
+        "vram": {
+          "idle_used_vram_gb": 10.3642578125,
+          "peak_vram_gb": 10.3642578125,
+          "peak_vram_increase_gb": 0.0,
+          "model_weights_gb": 2.0,
+          "vllm_kv_cache_allocated_gb": 0.2261810302734375,
+          "vllm_kv_cache_used_gb": 0.2261810302734375,
+          "vllm_kv_blocks_total": 14823,
+          "vllm_kv_blocks_used": 14823,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0,
+          "activation_tensors_gb": 7.6380767822265625,
+          "cuda_runtime_gb": 0.5,
+          "cachegen_total_gb": 0.0,
+          "sum_validated_gb": 10.3642578125,
+          "sum_diff_gb": 0.0
+        },
+        "vram_at_completion": {
+          "used_vram_gb": 10.3642578125,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0
+        },
+        "disk": {
+          "offloaded_size_mb": 8.06
+        }
+      },
+      "512": {
+        "mode": "cachegen",
+        "prefill_size": 512,
+        "gpu_memory_utilization": 0.7,
+        "success": true,
+        "latency": {
+          "success": true,
+          "prompt_tokens": 512,
+          "output_tokens": 1,
+          "ttft_sec": 1.9549,
+          "ttlt_sec": 1.955
+        },
+        "vram": {
+          "idle_used_vram_gb": 10.3642578125,
+          "peak_vram_gb": 10.3642578125,
+          "peak_vram_increase_gb": 0.0,
+          "model_weights_gb": 2.0,
+          "vllm_kv_cache_allocated_gb": 0.2261810302734375,
+          "vllm_kv_cache_used_gb": 0.2261810302734375,
+          "vllm_kv_blocks_total": 14823,
+          "vllm_kv_blocks_used": 14823,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0,
+          "activation_tensors_gb": 7.6380767822265625,
+          "cuda_runtime_gb": 0.5,
+          "cachegen_total_gb": 0.0,
+          "sum_validated_gb": 10.3642578125,
+          "sum_diff_gb": 0.0
+        },
+        "vram_at_completion": {
+          "used_vram_gb": 10.3642578125,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0
+        },
+        "disk": {
+          "offloaded_size_mb": 16.06
+        }
+      },
+      "1024": {
+        "mode": "cachegen",
+        "prefill_size": 1024,
+        "gpu_memory_utilization": 0.7,
+        "success": true,
+        "latency": {
+          "success": true,
+          "prompt_tokens": 1024,
+          "output_tokens": 1,
+          "ttft_sec": 2.0564,
+          "ttlt_sec": 2.0564
+        },
+        "vram": {
+          "idle_used_vram_gb": 10.3642578125,
+          "peak_vram_gb": 10.3642578125,
+          "peak_vram_increase_gb": 0.0,
+          "model_weights_gb": 2.0,
+          "vllm_kv_cache_allocated_gb": 0.2261810302734375,
+          "vllm_kv_cache_used_gb": 0.2261810302734375,
+          "vllm_kv_blocks_total": 14823,
+          "vllm_kv_blocks_used": 14823,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0,
+          "activation_tensors_gb": 7.6380767822265625,
+          "cuda_runtime_gb": 0.5,
+          "cachegen_total_gb": 0.0,
+          "sum_validated_gb": 10.3642578125,
+          "sum_diff_gb": 0.0
+        },
+        "vram_at_completion": {
+          "used_vram_gb": 10.3642578125,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0
+        },
+        "disk": {
+          "offloaded_size_mb": 32.06
+        }
+      },
+      "2048": {
+        "mode": "cachegen",
+        "prefill_size": 2048,
+        "gpu_memory_utilization": 0.7,
+        "success": true,
+        "latency": {
+          "success": true,
+          "prompt_tokens": 2048,
+          "output_tokens": 1,
+          "ttft_sec": 2.4543,
+          "ttlt_sec": 2.4543
+        },
+        "vram": {
+          "idle_used_vram_gb": 10.3642578125,
+          "peak_vram_gb": 10.3642578125,
+          "peak_vram_increase_gb": 0.0,
+          "model_weights_gb": 2.0,
+          "vllm_kv_cache_allocated_gb": 0.2261810302734375,
+          "vllm_kv_cache_used_gb": 0.2261810302734375,
+          "vllm_kv_blocks_total": 14823,
+          "vllm_kv_blocks_used": 14823,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0,
+          "activation_tensors_gb": 7.6380767822265625,
+          "cuda_runtime_gb": 0.5,
+          "cachegen_total_gb": 0.0,
+          "sum_validated_gb": 10.3642578125,
+          "sum_diff_gb": 0.0
+        },
+        "vram_at_completion": {
+          "used_vram_gb": 10.3642578125,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0
+        },
+        "disk": {
+          "offloaded_size_mb": 64.06
+        }
+      },
+      "4096": {
+        "mode": "cachegen",
+        "prefill_size": 4096,
+        "gpu_memory_utilization": 0.7,
+        "success": true,
+        "latency": {
+          "success": true,
+          "prompt_tokens": 4096,
+          "output_tokens": 1,
+          "ttft_sec": 3.808,
+          "ttlt_sec": 3.808
+        },
+        "vram": {
+          "idle_used_vram_gb": 10.3642578125,
+          "peak_vram_gb": 10.3642578125,
+          "peak_vram_increase_gb": 0.0,
+          "model_weights_gb": 2.0,
+          "vllm_kv_cache_allocated_gb": 0.2261810302734375,
+          "vllm_kv_cache_used_gb": 0.2261810302734375,
+          "vllm_kv_blocks_total": 14823,
+          "vllm_kv_blocks_used": 14823,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0,
+          "activation_tensors_gb": 7.6380767822265625,
+          "cuda_runtime_gb": 0.5,
+          "cachegen_total_gb": 0.0,
+          "sum_validated_gb": 10.3642578125,
+          "sum_diff_gb": 0.0
+        },
+        "vram_at_completion": {
+          "used_vram_gb": 10.3642578125,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0
+        },
+        "disk": {
+          "offloaded_size_mb": 128.0
+        }
+      },
+      "8192": {
+        "mode": "cachegen",
+        "prefill_size": 8192,
+        "gpu_memory_utilization": 0.7,
+        "success": false,
+        "latency": {
+          "error": "{\"error\":{\"message\":\"This model's maximum context length is 8160 tokens. However, your request has 8194 input tokens. Please reduce the length of the input messages. (parameter=input_tokens, value=8194)\",\"type\":\"BadRequestError\",\"param\":\"input_tokens\",\"code\":400}}"
+        },
+        "vram": {
+          "idle_used_vram_gb": 10.3642578125,
+          "peak_vram_gb": 10.3642578125,
+          "peak_vram_increase_gb": 0.0,
+          "model_weights_gb": 2.0,
+          "vllm_kv_cache_allocated_gb": 0.2261810302734375,
+          "vllm_kv_cache_used_gb": 0.2261810302734375,
+          "vllm_kv_blocks_total": 14823,
+          "vllm_kv_blocks_used": 14823,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0,
+          "activation_tensors_gb": 7.6380767822265625,
+          "cuda_runtime_gb": 0.5,
+          "cachegen_total_gb": 0.0,
+          "sum_validated_gb": 10.3642578125,
+          "sum_diff_gb": 0.0
+        },
+        "vram_at_completion": {
+          "used_vram_gb": 10.3642578125,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0
+        },
+        "disk": {
+          "offloaded_size_mb": 0.0
+        }
+      }
+    }
+  },
+  "gm_0.9": {
+    "native": {
+      "256": {
+        "mode": "native",
+        "prefill_size": 256,
+        "gpu_memory_utilization": 0.9,
+        "success": true,
+        "latency": {
+          "success": true,
+          "prompt_tokens": 256,
+          "output_tokens": 1,
+          "ttft_sec": 1.8381,
+          "ttlt_sec": 1.8381
+        },
+        "vram": {
+          "idle_used_vram_gb": 13.2705078125,
+          "peak_vram_gb": 13.2705078125,
+          "peak_vram_increase_gb": 0.0,
+          "model_weights_gb": 2.0,
+          "vllm_kv_cache_allocated_gb": 0.31719970703125,
+          "vllm_kv_cache_used_gb": 0.31719970703125,
+          "vllm_kv_blocks_total": 20788,
+          "vllm_kv_blocks_used": 20788,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0,
+          "activation_tensors_gb": 10.45330810546875,
+          "cuda_runtime_gb": 0.5,
+          "cachegen_total_gb": 0.0,
+          "sum_validated_gb": 13.2705078125,
+          "sum_diff_gb": 0.0
+        },
+        "vram_at_completion": {
+          "used_vram_gb": 13.2705078125,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0
+        },
+        "disk": {
+          "offloaded_size_mb": 0.0
+        }
+      },
+      "512": {
+        "mode": "native",
+        "prefill_size": 512,
+        "gpu_memory_utilization": 0.9,
+        "success": true,
+        "latency": {
+          "success": true,
+          "prompt_tokens": 512,
+          "output_tokens": 1,
+          "ttft_sec": 1.8778,
+          "ttlt_sec": 1.8778
+        },
+        "vram": {
+          "idle_used_vram_gb": 13.2705078125,
+          "peak_vram_gb": 13.2705078125,
+          "peak_vram_increase_gb": 0.0,
+          "model_weights_gb": 2.0,
+          "vllm_kv_cache_allocated_gb": 0.31719970703125,
+          "vllm_kv_cache_used_gb": 0.31719970703125,
+          "vllm_kv_blocks_total": 20788,
+          "vllm_kv_blocks_used": 20788,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0,
+          "activation_tensors_gb": 10.45330810546875,
+          "cuda_runtime_gb": 0.5,
+          "cachegen_total_gb": 0.0,
+          "sum_validated_gb": 13.2705078125,
+          "sum_diff_gb": 0.0
+        },
+        "vram_at_completion": {
+          "used_vram_gb": 13.2705078125,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0
+        },
+        "disk": {
+          "offloaded_size_mb": 0.0
+        }
+      },
+      "1024": {
+        "error": "[Errno 32] Broken pipe"
+      },
+      "2048": {
+        "mode": "native",
+        "prefill_size": 2048,
+        "gpu_memory_utilization": 0.9,
+        "success": true,
+        "latency": {
+          "success": true,
+          "prompt_tokens": 2048,
+          "output_tokens": 1,
+          "ttft_sec": 2.4628,
+          "ttlt_sec": 2.4628
+        },
+        "vram": {
+          "idle_used_vram_gb": 13.2705078125,
+          "peak_vram_gb": 13.2705078125,
+          "peak_vram_increase_gb": 0.0,
+          "model_weights_gb": 2.0,
+          "vllm_kv_cache_allocated_gb": 0.31719970703125,
+          "vllm_kv_cache_used_gb": 0.31719970703125,
+          "vllm_kv_blocks_total": 20788,
+          "vllm_kv_blocks_used": 20788,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0,
+          "activation_tensors_gb": 10.45330810546875,
+          "cuda_runtime_gb": 0.5,
+          "cachegen_total_gb": 0.0,
+          "sum_validated_gb": 13.2705078125,
+          "sum_diff_gb": 0.0
+        },
+        "vram_at_completion": {
+          "used_vram_gb": 13.2705078125,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0
+        },
+        "disk": {
+          "offloaded_size_mb": 0.0
+        }
+      },
+      "4096": {
+        "mode": "native",
+        "prefill_size": 4096,
+        "gpu_memory_utilization": 0.9,
+        "success": true,
+        "latency": {
+          "success": true,
+          "prompt_tokens": 4096,
+          "output_tokens": 1,
+          "ttft_sec": 3.7305,
+          "ttlt_sec": 3.7305
+        },
+        "vram": {
+          "idle_used_vram_gb": 13.2705078125,
+          "peak_vram_gb": 13.2705078125,
+          "peak_vram_increase_gb": 0.0,
+          "model_weights_gb": 2.0,
+          "vllm_kv_cache_allocated_gb": 0.31719970703125,
+          "vllm_kv_cache_used_gb": 0.31719970703125,
+          "vllm_kv_blocks_total": 20788,
+          "vllm_kv_blocks_used": 20788,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0,
+          "activation_tensors_gb": 10.45330810546875,
+          "cuda_runtime_gb": 0.5,
+          "cachegen_total_gb": 0.0,
+          "sum_validated_gb": 13.2705078125,
+          "sum_diff_gb": 0.0
+        },
+        "vram_at_completion": {
+          "used_vram_gb": 13.2705078125,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0
+        },
+        "disk": {
+          "offloaded_size_mb": 0.0
+        }
+      },
+      "8192": {
+        "mode": "native",
+        "prefill_size": 8192,
+        "gpu_memory_utilization": 0.9,
+        "success": false,
+        "latency": {
+          "error": "{\"error\":{\"message\":\"This model's maximum context length is 8160 tokens. However, your request has 8194 input tokens. Please reduce the length of the input messages. (parameter=input_tokens, value=8194)\",\"type\":\"BadRequestError\",\"param\":\"input_tokens\",\"code\":400}}"
+        },
+        "vram": {
+          "idle_used_vram_gb": 13.2705078125,
+          "peak_vram_gb": 13.2705078125,
+          "peak_vram_increase_gb": 0.0,
+          "model_weights_gb": 2.0,
+          "vllm_kv_cache_allocated_gb": 0.31719970703125,
+          "vllm_kv_cache_used_gb": 0.31719970703125,
+          "vllm_kv_blocks_total": 20788,
+          "vllm_kv_blocks_used": 20788,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0,
+          "activation_tensors_gb": 10.45330810546875,
+          "cuda_runtime_gb": 0.5,
+          "cachegen_total_gb": 0.0,
+          "sum_validated_gb": 13.2705078125,
+          "sum_diff_gb": 0.0
+        },
+        "vram_at_completion": {
+          "used_vram_gb": 13.2705078125,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0
+        },
+        "disk": {
+          "offloaded_size_mb": 0.0
+        }
+      }
+    },
+    "cachegen": {
+      "256": {
+        "mode": "cachegen",
+        "prefill_size": 256,
+        "gpu_memory_utilization": 0.9,
+        "success": true,
+        "latency": {
+          "success": true,
+          "prompt_tokens": 256,
+          "output_tokens": 1,
+          "ttft_sec": 1.8267,
+          "ttlt_sec": 1.8267
+        },
+        "vram": {
+          "idle_used_vram_gb": 13.2705078125,
+          "peak_vram_gb": 13.2705078125,
+          "peak_vram_increase_gb": 0.0,
+          "model_weights_gb": 2.0,
+          "vllm_kv_cache_allocated_gb": 0.31719970703125,
+          "vllm_kv_cache_used_gb": 0.31719970703125,
+          "vllm_kv_blocks_total": 20788,
+          "vllm_kv_blocks_used": 20788,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0,
+          "activation_tensors_gb": 10.45330810546875,
+          "cuda_runtime_gb": 0.5,
+          "cachegen_total_gb": 0.0,
+          "sum_validated_gb": 13.2705078125,
+          "sum_diff_gb": 0.0
+        },
+        "vram_at_completion": {
+          "used_vram_gb": 13.2705078125,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0
+        },
+        "disk": {
+          "offloaded_size_mb": 8.06
+        }
+      },
+      "512": {
+        "mode": "cachegen",
+        "prefill_size": 512,
+        "gpu_memory_utilization": 0.9,
+        "success": true,
+        "latency": {
+          "success": true,
+          "prompt_tokens": 512,
+          "output_tokens": 1,
+          "ttft_sec": 1.8804,
+          "ttlt_sec": 1.8804
+        },
+        "vram": {
+          "idle_used_vram_gb": 13.2705078125,
+          "peak_vram_gb": 13.2705078125,
+          "peak_vram_increase_gb": 0.0,
+          "model_weights_gb": 2.0,
+          "vllm_kv_cache_allocated_gb": 0.31719970703125,
+          "vllm_kv_cache_used_gb": 0.31719970703125,
+          "vllm_kv_blocks_total": 20788,
+          "vllm_kv_blocks_used": 20788,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0,
+          "activation_tensors_gb": 10.45330810546875,
+          "cuda_runtime_gb": 0.5,
+          "cachegen_total_gb": 0.0,
+          "sum_validated_gb": 13.2705078125,
+          "sum_diff_gb": 0.0
+        },
+        "vram_at_completion": {
+          "used_vram_gb": 13.2705078125,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0
+        },
+        "disk": {
+          "offloaded_size_mb": 16.06
+        }
+      },
+      "1024": {
+        "mode": "cachegen",
+        "prefill_size": 1024,
+        "gpu_memory_utilization": 0.9,
+        "success": true,
+        "latency": {
+          "success": true,
+          "prompt_tokens": 1024,
+          "output_tokens": 1,
+          "ttft_sec": 2.1425,
+          "ttlt_sec": 2.1425
+        },
+        "vram": {
+          "idle_used_vram_gb": 13.2705078125,
+          "peak_vram_gb": 13.2705078125,
+          "peak_vram_increase_gb": 0.0,
+          "model_weights_gb": 2.0,
+          "vllm_kv_cache_allocated_gb": 0.31719970703125,
+          "vllm_kv_cache_used_gb": 0.31719970703125,
+          "vllm_kv_blocks_total": 20788,
+          "vllm_kv_blocks_used": 20788,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0,
+          "activation_tensors_gb": 10.45330810546875,
+          "cuda_runtime_gb": 0.5,
+          "cachegen_total_gb": 0.0,
+          "sum_validated_gb": 13.2705078125,
+          "sum_diff_gb": 0.0
+        },
+        "vram_at_completion": {
+          "used_vram_gb": 13.2705078125,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0
+        },
+        "disk": {
+          "offloaded_size_mb": 32.06
+        }
+      },
+      "2048": {
+        "mode": "cachegen",
+        "prefill_size": 2048,
+        "gpu_memory_utilization": 0.9,
+        "success": true,
+        "latency": {
+          "success": true,
+          "prompt_tokens": 2048,
+          "output_tokens": 1,
+          "ttft_sec": 2.4167,
+          "ttlt_sec": 2.4167
+        },
+        "vram": {
+          "idle_used_vram_gb": 13.2705078125,
+          "peak_vram_gb": 13.2705078125,
+          "peak_vram_increase_gb": 0.0,
+          "model_weights_gb": 2.0,
+          "vllm_kv_cache_allocated_gb": 0.31719970703125,
+          "vllm_kv_cache_used_gb": 0.31719970703125,
+          "vllm_kv_blocks_total": 20788,
+          "vllm_kv_blocks_used": 20788,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0,
+          "activation_tensors_gb": 10.45330810546875,
+          "cuda_runtime_gb": 0.5,
+          "cachegen_total_gb": 0.0,
+          "sum_validated_gb": 13.2705078125,
+          "sum_diff_gb": 0.0
+        },
+        "vram_at_completion": {
+          "used_vram_gb": 13.2705078125,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0
+        },
+        "disk": {
+          "offloaded_size_mb": 64.06
+        }
+      },
+      "4096": {
+        "mode": "cachegen",
+        "prefill_size": 4096,
+        "gpu_memory_utilization": 0.9,
+        "success": true,
+        "latency": {
+          "success": true,
+          "prompt_tokens": 4096,
+          "output_tokens": 1,
+          "ttft_sec": 3.7948,
+          "ttlt_sec": 3.7948
+        },
+        "vram": {
+          "idle_used_vram_gb": 13.2705078125,
+          "peak_vram_gb": 13.2705078125,
+          "peak_vram_increase_gb": 0.0,
+          "model_weights_gb": 2.0,
+          "vllm_kv_cache_allocated_gb": 0.31719970703125,
+          "vllm_kv_cache_used_gb": 0.31719970703125,
+          "vllm_kv_blocks_total": 20788,
+          "vllm_kv_blocks_used": 20788,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0,
+          "activation_tensors_gb": 10.45330810546875,
+          "cuda_runtime_gb": 0.5,
+          "cachegen_total_gb": 0.0,
+          "sum_validated_gb": 13.2705078125,
+          "sum_diff_gb": 0.0
+        },
+        "vram_at_completion": {
+          "used_vram_gb": 13.2705078125,
+          "vllm_kv_usage_perc": 0.0,
+          "vllm_num_running": 0,
+          "vllm_num_waiting": 0,
+          "vllm_num_swapped": 0
+        },
+        "disk": {
+          "offloaded_size_mb": 128.0
+        }
+      },
+      "8192": {
+        "error": "[Errno 32] Broken pipe"
+      }
+    }
+  }
+}

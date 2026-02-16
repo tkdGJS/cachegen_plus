@@ -1,0 +1,20 @@
+{
+  "native": {
+    "mode": "native",
+    "kv_cache_gb": 1.0,
+    "mem_after_clone_gb": 2.0,
+    "peak_during_clone_gb": 2.0,
+    "memory_increase_gb": 1.0,
+    "peak_increase_gb": 1.0,
+    "nvidia_smi_gb": 2.1025390625
+  },
+  "cachegen": {
+    "mode": "cachegen",
+    "kv_cache_gb": 1.0,
+    "mem_after_compress_gb": 1.269597053527832,
+    "peak_during_compress_gb": 2.674895763397217,
+    "memory_increase_gb": 0.26959705352783203,
+    "peak_increase_gb": 1.6748957633972168,
+    "nvidia_smi_gb": 3.0087890625
+  }
+}

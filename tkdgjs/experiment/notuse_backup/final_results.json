@@ -1,0 +1,262 @@
+{
+  "native": {
+    "256": {
+      "mode": "native",
+      "prefill_size": 256,
+      "success": true,
+      "latency": {
+        "success": true,
+        "prompt_tokens": 256,
+        "output_tokens": 1,
+        "ttft_sec": 1.7918,
+        "tbt_p95_sec": 0,
+        "tbt_p99_sec": 0,
+        "ttlt_sec": 1.7918
+      },
+      "vram": {
+        "min_gb": 13.2705,
+        "max_gb": 13.2705,
+        "peak_gb": 13.2705,
+        "sample_count": 90,
+        "idle_gb": 13.2705
+      },
+      "disk": {
+        "before_files": 0,
+        "before_size_bytes": 0,
+        "after_files": 0,
+        "after_size_bytes": 0,
+        "offloaded_files": 0,
+        "offloaded_size_bytes": 0,
+        "offloaded_size_mb": 0.0
+      },
+      "chunk_count": null,
+      "vram_samples_count": 90
+    },
+    "512": {
+      "mode": "native",
+      "prefill_size": 512,
+      "success": true,
+      "latency": {
+        "success": true,
+        "prompt_tokens": 512,
+        "output_tokens": 1,
+        "ttft_sec": 1.8617,
+        "tbt_p95_sec": 0,
+        "tbt_p99_sec": 0,
+        "ttlt_sec": 1.8617
+      },
+      "vram": {
+        "min_gb": 13.2705,
+        "max_gb": 13.2705,
+        "peak_gb": 13.2705,
+        "sample_count": 90,
+        "idle_gb": 13.2705
+      },
+      "disk": {
+        "before_files": 0,
+        "before_size_bytes": 0,
+        "after_files": 0,
+        "after_size_bytes": 0,
+        "offloaded_files": 0,
+        "offloaded_size_bytes": 0,
+        "offloaded_size_mb": 0.0
+      },
+      "chunk_count": null,
+      "vram_samples_count": 90
+    },
+    "1024": {
+      "mode": "native",
+      "prefill_size": 1024,
+      "success": true,
+      "latency": {
+        "success": true,
+        "prompt_tokens": 1024,
+        "output_tokens": 1,
+        "ttft_sec": 2.0271,
+        "tbt_p95_sec": 0,
+        "tbt_p99_sec": 0,
+        "ttlt_sec": 2.0272
+      },
+      "vram": {
+        "min_gb": 13.2705,
+        "max_gb": 13.2705,
+        "peak_gb": 13.2705,
+        "sample_count": 89,
+        "idle_gb": 13.2705
+      },
+      "disk": {
+        "before_files": 0,
+        "before_size_bytes": 0,
+        "after_files": 0,
+        "after_size_bytes": 0,
+        "offloaded_files": 0,
+        "offloaded_size_bytes": 0,
+        "offloaded_size_mb": 0.0
+      },
+      "chunk_count": null,
+      "vram_samples_count": 89
+    },
+    "2048": {
+      "mode": "native",
+      "prefill_size": 2048,
+      "success": true,
+      "latency": {
+        "success": true,
+        "prompt_tokens": 2048,
+        "output_tokens": 1,
+        "ttft_sec": 2.4047,
+        "tbt_p95_sec": 0,
+        "tbt_p99_sec": 0,
+        "ttlt_sec": 2.4047
+      },
+      "vram": {
+        "min_gb": 13.2705,
+        "max_gb": 13.2705,
+        "peak_gb": 13.2705,
+        "sample_count": 91,
+        "idle_gb": 13.2705
+      },
+      "disk": {
+        "before_files": 0,
+        "before_size_bytes": 0,
+        "after_files": 0,
+        "after_size_bytes": 0,
+        "offloaded_files": 0,
+        "offloaded_size_bytes": 0,
+        "offloaded_size_mb": 0.0
+      },
+      "chunk_count": null,
+      "vram_samples_count": 91
+    }
+  },
+  "cachegen": {
+    "256": {
+      "mode": "cachegen",
+      "prefill_size": 256,
+      "success": true,
+      "latency": {
+        "success": true,
+        "prompt_tokens": 256,
+        "output_tokens": 1,
+        "ttft_sec": 1.7954,
+        "tbt_p95_sec": 0,
+        "tbt_p99_sec": 0,
+        "ttlt_sec": 1.7954
+      },
+      "vram": {
+        "min_gb": 13.2705,
+        "max_gb": 13.2705,
+        "peak_gb": 13.2705,
+        "sample_count": 90,
+        "idle_gb": 13.2705
+      },
+      "disk": {
+        "before_files": 0,
+        "before_size_bytes": 0,
+        "after_files": 0,
+        "after_size_bytes": 0,
+        "offloaded_files": 0,
+        "offloaded_size_bytes": 0,
+        "offloaded_size_mb": 0.0
+      },
+      "chunk_count": null,
+      "vram_samples_count": 90
+    },
+    "512": {
+      "mode": "cachegen",
+      "prefill_size": 512,
+      "success": true,
+      "latency": {
+        "success": true,
+        "prompt_tokens": 512,
+        "output_tokens": 1,
+        "ttft_sec": 1.8632,
+        "tbt_p95_sec": 0,
+        "tbt_p99_sec": 0,
+        "ttlt_sec": 1.8632
+      },
+      "vram": {
+        "min_gb": 13.2705,
+        "max_gb": 13.2705,
+        "peak_gb": 13.2705,
+        "sample_count": 89,
+        "idle_gb": 13.2705
+      },
+      "disk": {
+        "before_files": 0,
+        "before_size_bytes": 0,
+        "after_files": 0,
+        "after_size_bytes": 0,
+        "offloaded_files": 0,
+        "offloaded_size_bytes": 0,
+        "offloaded_size_mb": 0.0
+      },
+      "chunk_count": null,
+      "vram_samples_count": 89
+    },
+    "1024": {
+      "mode": "cachegen",
+      "prefill_size": 1024,
+      "success": true,
+      "latency": {
+        "success": true,
+        "prompt_tokens": 1024,
+        "output_tokens": 1,
+        "ttft_sec": 2.0133,
+        "tbt_p95_sec": 0,
+        "tbt_p99_sec": 0,
+        "ttlt_sec": 2.0133
+      },
+      "vram": {
+        "min_gb": 13.2705,
+        "max_gb": 13.2705,
+        "peak_gb": 13.2705,
+        "sample_count": 88,
+        "idle_gb": 13.2705
+      },
+      "disk": {
+        "before_files": 0,
+        "before_size_bytes": 0,
+        "after_files": 0,
+        "after_size_bytes": 0,
+        "offloaded_files": 0,
+        "offloaded_size_bytes": 0,
+        "offloaded_size_mb": 0.0
+      },
+      "chunk_count": null,
+      "vram_samples_count": 88
+    },
+    "2048": {
+      "mode": "cachegen",
+      "prefill_size": 2048,
+      "success": true,
+      "latency": {
+        "success": true,
+        "prompt_tokens": 2048,
+        "output_tokens": 1,
+        "ttft_sec": 2.3806,
+        "tbt_p95_sec": 0,
+        "tbt_p99_sec": 0,
+        "ttlt_sec": 2.3806
+      },
+      "vram": {
+        "min_gb": 13.2705,
+        "max_gb": 13.2705,
+        "peak_gb": 13.2705,
+        "sample_count": 93,
+        "idle_gb": 13.2705
+      },
+      "disk": {
+        "before_files": 0,
+        "before_size_bytes": 0,
+        "after_files": 0,
+        "after_size_bytes": 0,
+        "offloaded_files": 0,
+        "offloaded_size_bytes": 0,
+        "offloaded_size_mb": 0.0
+      },
+      "chunk_count": null,
+      "vram_samples_count": 93
+    }
+  }
+}

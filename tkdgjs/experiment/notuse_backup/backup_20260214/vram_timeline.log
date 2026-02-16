@@ -1,0 +1,5 @@
+{"timestamp": 1771095604.6352441, "mode": "cachegen", "prefill_size": 2048, "gpu_util": 0.9, "stage": "before_start", "vram_gb": 0.0}
+{"timestamp": 1771095674.3551319, "mode": "cachegen", "prefill_size": 2048, "gpu_util": 0.9, "stage": "after_start", "vram_gb": 13.5869140625}
+{"timestamp": 1771095674.3977582, "mode": "cachegen", "prefill_size": 2048, "gpu_util": 0.9, "stage": "before_request", "vram_gb": 13.5869140625}
+{"timestamp": 1771095675.922535, "mode": "cachegen", "prefill_size": 2048, "gpu_util": 0.9, "stage": "during_request", "vram_gb": 13.5869140625}
+{"timestamp": 1771095680.9734437, "mode": "cachegen", "prefill_size": 2048, "gpu_util": 0.9, "stage": "after_compression", "vram_gb": 13.5869140625}

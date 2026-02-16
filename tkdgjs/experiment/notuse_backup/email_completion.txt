@@ -1,0 +1,33 @@
+Subject: VRAM 실험 완료 - CacheGen vs Native 결과
+
+실험이 완료되었습니다.
+
+=== 실험 결과 ===
+
+VRAM 사용량 비교 (4096 토큰, Llama-3.2-1B):
+
+Mode                 | Memory Increase | Peak Increase  
+-------------------------------------------------------
+CacheGen (compress) | 0.27 GB        | 1.67 GB        
+Native (copy only)  | 1.00 GB        | 1.00 GB        
+
+Difference (CacheGen - Native):
+  - Memory increase: -0.73 GB
+  - Peak increase:   +0.67 GB ← 압축 시 추가 VRAM 사용
+
+=== 결론 ===
+
+가설 확인: CacheGen 압축 시 Native보다 피크 VRAM을 0.67GB MORE 사용
+
+=== 측정 방법 ===
+
+1. LMCache CacheGen 코드의 encode_function에 torch.cuda.memory_allocated() 추가
+2. KV 캐시 (1GB)를 직접 압축하여 VRAM 변화 측정
+3. Native 모드는 KV 캐시 복사만 수행하여 비교
+
+=== 수정된 파일 ===
+
+- /home/noslab-gpu/tkdgjs/tkdgjs/lib/python3.10/site-packages/lmcache/storage_backend/serde/cachegen_encoder.py (VRAM 측정 로직 추가)
+- /home/noslab-gpu/tkdgjs/experiment/test_vram_direct.py (테스트 스크립트)
+
+감사합니다.
